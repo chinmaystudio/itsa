@@ -77,20 +77,39 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   );
 }
 
+const SITE_URL = "https://itsa-wheat.vercel.app";
+const DEFAULT_TITLE = "ITSA | Information Technology Students' Association";
+const DEFAULT_DESCRIPTION =
+  "The official digital platform of the Information Technology Students' Association (ITSA) at PCCoE, Pune — coordinating technical events, student clubs, 14 specialized teams, and achievements.";
+const OG_IMAGE_URL = `${SITE_URL}/itsa-og-image.png`;
+
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   head: () => ({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "ITSA — IT Students' Association, PCCoE Pune" },
-      {
-        name: "description",
-        content:
-          "The student-run Information Technology Students' Association of PCCoE, Pune — events, clubs, teams and achievements.",
-      },
+      { title: DEFAULT_TITLE },
+      { name: "description", content: DEFAULT_DESCRIPTION },
       { name: "author", content: "ITSA, PCCoE Pune" },
+      { name: "application-name", content: "ITSA" },
+      { name: "apple-mobile-web-app-title", content: "ITSA" },
+      { name: "theme-color", content: "#ffffff" },
+      { property: "og:site_name", content: "ITSA PCCoE" },
       { property: "og:type", content: "website" },
+      { property: "og:title", content: DEFAULT_TITLE },
+      { property: "og:description", content: DEFAULT_DESCRIPTION },
+      { property: "og:url", content: SITE_URL },
+      { property: "og:image", content: OG_IMAGE_URL },
+      { property: "og:image:secure_url", content: OG_IMAGE_URL },
+      { property: "og:image:type", content: "image/png" },
+      { property: "og:image:width", content: "1200" },
+      { property: "og:image:height", content: "630" },
+      { property: "og:image:alt", content: "ITSA — Information Technology Students' Association" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: DEFAULT_TITLE },
+      { name: "twitter:description", content: DEFAULT_DESCRIPTION },
+      { name: "twitter:image", content: OG_IMAGE_URL },
+      { name: "twitter:image:alt", content: "ITSA — Information Technology Students' Association" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
@@ -100,8 +119,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         rel: "stylesheet",
         href: "https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=IBM+Plex+Mono:wght@400;500&family=Manrope:wght@400;500;700&display=swap",
       },
-      { rel: "icon", href: "/itsa-logo-transparent.png", type: "image/png" },
-      { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
+      { rel: "icon", href: "/favicon.ico", sizes: "32x32" },
+      { rel: "icon", href: "/favicon.png", type: "image/png", sizes: "32x32" },
+      { rel: "icon", href: "/favicon-32x32.png", type: "image/png", sizes: "32x32" },
+      { rel: "icon", href: "/favicon-16x16.png", type: "image/png", sizes: "16x16" },
+      { rel: "apple-touch-icon", href: "/apple-touch-icon.png", sizes: "180x180" },
+      { rel: "shortcut icon", href: "/favicon.ico" },
+      { rel: "manifest", href: "/site.webmanifest" },
     ],
   }),
   shellComponent: RootShell,

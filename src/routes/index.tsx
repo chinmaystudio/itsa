@@ -5,17 +5,33 @@ import { Reveal, SplitWords } from "@/components/fx/motion-primitives";
 import { clubs } from "@/data/clubs";
 import { itsa } from "@/data/itsa";
 
-const title = "ITSA — Information Technology Students' Association, PCCoE Pune";
+const title = "ITSA | Information Technology Students' Association";
 const description =
-  "The digital headquarters of ITSA, PCCoE Pune: events, clubs, teams and achievements of the Information Technology Students' Association.";
+  "The official digital platform of the Information Technology Students' Association (ITSA) at PCCoE, Pune — coordinating technical events, student clubs, 14 specialized teams, and achievements.";
+const siteUrl = "https://itsa-wheat.vercel.app";
+const ogImage = `${siteUrl}/itsa-og-image.png`;
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title },
       { name: "description", content: description },
+      { property: "og:site_name", content: "ITSA PCCoE" },
+      { property: "og:type", content: "website" },
       { property: "og:title", content: title },
       { property: "og:description", content: description },
+      { property: "og:url", content: siteUrl },
+      { property: "og:image", content: ogImage },
+      { property: "og:image:secure_url", content: ogImage },
+      { property: "og:image:type", content: "image/png" },
+      { property: "og:image:width", content: "1200" },
+      { property: "og:image:height", content: "630" },
+      { property: "og:image:alt", content: "ITSA — Information Technology Students' Association" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: title },
+      { name: "twitter:description", content: description },
+      { name: "twitter:image", content: ogImage },
+      { name: "twitter:image:alt", content: "ITSA — Information Technology Students' Association" },
     ],
   }),
   component: Index,

@@ -336,27 +336,4 @@ html.dark[data-route="contact"] {
   }
 }
 
-/* ============================================================
-   LIGHTBOX MODAL — Z-INDEX & BRIGHTNESS OVERRIDES
-   Force the image above the dark backdrop layer at all times.
-   ============================================================ */
 
-/* Force the modal dark backdrop backward */
-div[data-state="open"].fixed.inset-0,
-.bg-black\/80,
-.bg-background\/80 {
-  z-index: 990 !important;
-}
-
-/* Force the modal content wrapper to the front */
-div[role="dialog"] {
-  z-index: 1000 !important;
-}
-
-/* Force the expanded image itself to stay fully bright and strictly on top */
-div[role="dialog"] img {
-  z-index: 1001 !important;
-  position: relative !important;
-  opacity: 1 !important;
-  filter: brightness(100%) !important;
-}

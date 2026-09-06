@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "motion/react";
 
 import { Reveal, SplitWords } from "@/components/fx/motion-primitives";
@@ -12,6 +13,15 @@ type EventItem = {
   overview: string;
   date: string;
   images?: string[];
+  captions?: string[] | undefined;
+  details?: {
+    eventName: string;
+    date: string;
+    venue: string;
+    participants: string;
+  };
+  highlights?: string[];
+  outcome?: string;
 };
 
 const allEvents = eventsData as unknown as EventItem[];
@@ -61,6 +71,7 @@ export const Route = createFileRoute("/events")({
 type ActiveLightbox = {
   eventName: string;
   images: string[];
+  captions?: string[] | undefined;
   currentIndex: number;
 };
 
@@ -72,13 +83,23 @@ function Events() {
   const [open2026_27, setOpen2026_27] = useState(true);
   const [open2025_26, setOpen2025_26] = useState(true);
 
+  // Show More / Show Less state for 2026-27 Tenure event box
+  const [is2026Expanded, setIs2026Expanded] = useState(false);
+
+  // Client mount check for SSR-safe portal rendering
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   // Lightbox modal state for expandable images
   const [activeLightbox, setActiveLightbox] = useState<ActiveLightbox | null>(null);
 
-  // Keyboard navigation for Lightbox
+  // Keyboard navigation and body scroll-locking for Lightbox
   useEffect(() => {
+    if (!activeLightbox) return;
+
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (!activeLightbox) return;
       if (e.key === "Escape") {
         setActiveLightbox(null);
       } else if (e.key === "ArrowLeft") {
@@ -103,13 +124,13 @@ function Events() {
       }
     };
 
-    if (activeLightbox) {
-      window.addEventListener("keydown", handleKeyDown);
-      document.body.style.overflow = "hidden";
-    }
+    window.addEventListener("keydown", handleKeyDown);
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
-      document.body.style.overflow = "unset";
+      document.body.style.overflow = originalOverflow;
     };
   }, [activeLightbox]);
 
@@ -362,7 +383,7 @@ function Events() {
                         return (
                           <Reveal key={e.id}>
                             <article
-                              className={`grid items-center gap-8 border-t border-foreground/20 pt-8 lg:grid-cols-2 ${
+                              className={`grid items-start gap-8 border-t border-foreground/20 pt-8 lg:grid-cols-2 ${
                                 flip ? "lg:[&>figure]:order-2" : ""
                               }`}
                             >
@@ -374,6 +395,7 @@ function Events() {
                                     setActiveLightbox({
                                       eventName: e.name,
                                       images: e.images,
+                                      captions: e.captions,
                                       currentIndex: 0,
                                     });
                                   }
@@ -383,6 +405,7 @@ function Events() {
                                     setActiveLightbox({
                                       eventName: e.name,
                                       images: e.images,
+                                      captions: e.captions,
                                       currentIndex: 0,
                                     });
                                   }
@@ -392,7 +415,7 @@ function Events() {
                                 {e.images?.[0] ? (
                                   <img
                                     src={e.images[0]}
-                                    alt={e.name}
+                                    alt={e.captions?.[0] || e.name}
                                     loading={i < 2 ? "eager" : "lazy"}
                                     className="aspect-[16/10] w-full object-cover transition-transform duration-500 group-hover:scale-105 cursor-pointer"
                                   />
@@ -438,10 +461,12 @@ function Events() {
                                         <button
                                           key={`${e.id}-${si}`}
                                           type="button"
+                                          title={e.captions?.[si] || `Photo ${si + 1}`}
                                           onClick={() => {
                                             setActiveLightbox({
                                               eventName: e.name,
                                               images: e.images!,
+                                              captions: e.captions,
                                               currentIndex: si,
                                             });
                                           }}
@@ -449,7 +474,7 @@ function Events() {
                                         >
                                           <img
                                             src={src}
-                                            alt=""
+                                            alt={e.captions?.[si] || ""}
                                             loading="lazy"
                                             className="size-full object-cover transition-transform duration-300 group-hover:scale-110"
                                           />
@@ -461,6 +486,134 @@ function Events() {
                                         </button>
                                       ))}
                                     </div>
+                                  </div>
+                                ) : null}
+
+                                {/* Show More / Show Less inside the same Tenure 2026-27 event box */}
+                                {e.details ? (
+                                  <div className="mt-6">
+                                    <button
+                                      type="button"
+                                      onClick={() => setIs2026Expanded((prev) => !prev)}
+                                      aria-expanded={is2026Expanded}
+                                      className="inline-flex items-center gap-2 rounded border border-primary/50 bg-primary/10 px-4 py-2 font-mono text-xs uppercase tracking-[0.14em] text-primary transition-all duration-200 hover:bg-primary hover:text-primary-foreground focus:outline-none focus:ring-2 focus:ring-primary cursor-pointer shadow-xs"
+                                    >
+                                      <span>{is2026Expanded ? "Show Less" : "Show More"}</span>
+                                      <span
+                                        aria-hidden
+                                        className={`inline-block font-mono text-xs transition-transform duration-200 ${
+                                          is2026Expanded ? "rotate-180" : ""
+                                        }`}
+                                      >
+                                        ↓
+                                      </span>
+                                    </button>
+
+                                    <AnimatePresence initial={false}>
+                                      {is2026Expanded && (
+                                        <motion.div
+                                          initial={{ opacity: 0, height: 0 }}
+                                          animate={{ opacity: 1, height: "auto" }}
+                                          exit={{ opacity: 0, height: 0 }}
+                                          transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                                          className="overflow-hidden"
+                                        >
+                                          <div className="mt-6 space-y-6 rounded-lg border border-border/80 bg-surface/50 p-5 sm:p-6 backdrop-blur-xs">
+                                            {/* 1. Event Details */}
+                                            <div className="space-y-3">
+                                              <div className="flex items-center gap-2 border-b border-border/80 pb-2">
+                                                <span className="size-1.5 rounded-full bg-primary" />
+                                                <h4 className="font-mono text-xs uppercase tracking-[0.2em] text-primary font-bold">
+                                                  Event Details
+                                                </h4>
+                                              </div>
+                                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                                                <div className="rounded border border-border/70 bg-background/60 p-3.5">
+                                                  <span className="block font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
+                                                    Name of the Event:
+                                                  </span>
+                                                  <span className="mt-1 block font-medium text-foreground text-xs sm:text-sm">
+                                                    {e.details.eventName}
+                                                  </span>
+                                                </div>
+                                                <div className="rounded border border-border/70 bg-background/60 p-3.5">
+                                                  <span className="block font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
+                                                    Date:
+                                                  </span>
+                                                  <span className="mt-1 block font-medium text-foreground text-xs sm:text-sm">
+                                                    {e.details.date}
+                                                  </span>
+                                                </div>
+                                                <div className="rounded border border-border/70 bg-background/60 p-3.5">
+                                                  <span className="block font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
+                                                    Venue:
+                                                  </span>
+                                                  <span className="mt-1 block font-medium text-foreground text-xs sm:text-sm">
+                                                    {e.details.venue}
+                                                  </span>
+                                                </div>
+                                                <div className="rounded border border-border/70 bg-background/60 p-3.5">
+                                                  <span className="block font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
+                                                    Participant:
+                                                  </span>
+                                                  <span className="mt-1 block font-medium text-foreground text-xs sm:text-sm">
+                                                    {e.details.participants}
+                                                  </span>
+                                                </div>
+                                              </div>
+                                            </div>
+
+                                            {/* 2. Overview */}
+                                            <div className="space-y-2">
+                                              <div className="flex items-center gap-2 border-b border-border/80 pb-2">
+                                                <span className="size-1.5 rounded-full bg-primary" />
+                                                <h4 className="font-mono text-xs uppercase tracking-[0.2em] text-primary font-bold">
+                                                  Overview
+                                                </h4>
+                                              </div>
+                                              <p className="text-xs sm:text-sm leading-relaxed text-muted-foreground">
+                                                {e.overview}
+                                              </p>
+                                            </div>
+
+                                            {/* 3. Highlights */}
+                                            {e.highlights && e.highlights.length > 0 && (
+                                              <div className="space-y-2.5">
+                                                <div className="flex items-center gap-2 border-b border-border/80 pb-2">
+                                                  <span className="size-1.5 rounded-full bg-primary" />
+                                                  <h4 className="font-mono text-xs uppercase tracking-[0.2em] text-primary font-bold">
+                                                    Highlights
+                                                  </h4>
+                                                </div>
+                                                <ul className="space-y-2.5 text-xs sm:text-sm text-muted-foreground">
+                                                  {e.highlights.map((highlight, hIdx) => (
+                                                    <li key={hIdx} className="flex items-start gap-3">
+                                                      <span className="mt-1 size-1.5 rounded-full bg-primary shrink-0" />
+                                                      <span className="leading-relaxed">{highlight}</span>
+                                                    </li>
+                                                  ))}
+                                                </ul>
+                                              </div>
+                                            )}
+
+                                            {/* 4. Outcome */}
+                                            {e.outcome && (
+                                              <div className="space-y-2">
+                                                <div className="flex items-center gap-2 border-b border-border/80 pb-2">
+                                                  <span className="size-1.5 rounded-full bg-primary" />
+                                                  <h4 className="font-mono text-xs uppercase tracking-[0.2em] text-primary font-bold">
+                                                    Outcome
+                                                  </h4>
+                                                </div>
+                                                <p className="text-xs sm:text-sm leading-relaxed text-muted-foreground">
+                                                  {e.outcome}
+                                                </p>
+                                              </div>
+                                            )}
+                                          </div>
+                                        </motion.div>
+                                      )}
+                                    </AnimatePresence>
                                   </div>
                                 ) : null}
                               </div>
@@ -645,136 +798,163 @@ function Events() {
       </section>
 
       {/* ════════════════════════════════════════════════════════════
-          LIGHTBOX / FULLSCREEN IMAGE MODAL
+          LIGHTBOX / FULLSCREEN IMAGE MODAL (Portaled to document.body)
           ════════════════════════════════════════════════════════════ */}
-      <AnimatePresence>
-        {activeLightbox && (
-          <>
-            {/* 1. Dedicated Backdrop Overlay (Sibling, z-50, bg-black/80) */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.15 }}
-              onClick={() => setActiveLightbox(null)}
-              className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm cursor-pointer"
-              aria-label="Close modal background"
-            />
-
-            {/* 2. Content Wrapper Containing Expanded Image (Sibling, z-[100]) */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              transition={{ duration: 0.15 }}
-              className="fixed left-[50%] top-[50%] z-[100] translate-x-[-50%] translate-y-[-50%] flex flex-col items-center justify-between w-full max-w-5xl max-h-[95vh] p-4"
-            >
-              {/* Top Toolbar */}
-              <div className="w-full flex items-center justify-between z-10 mb-3 px-1">
-                <div className="flex items-center gap-3 rounded-full bg-neutral-900/95 px-4 py-2 border border-white/20 shadow-2xl">
-                  <span className="size-2 rounded-full bg-primary animate-pulse" />
-                  <span className="font-mono text-xs font-bold text-white tracking-wide">
-                    {activeLightbox.eventName}
-                  </span>
-                  <span className="text-white/40">|</span>
-                  <span className="font-mono text-xs text-white/80">
-                    Photo {activeLightbox.currentIndex + 1} of {activeLightbox.images.length}
-                  </span>
-                </div>
-
-                {/* Prominent 'X' Close Button */}
-                <button
-                  type="button"
+      {mounted &&
+        createPortal(
+          <AnimatePresence>
+            {activeLightbox && (
+              <div
+                role="dialog"
+                aria-modal="true"
+                aria-label={`${activeLightbox.eventName} image preview`}
+                className="fixed inset-0 z-[1000] flex items-center justify-center p-3 sm:p-6 md:p-8 select-none"
+              >
+                {/* 1. Dedicated Backdrop Overlay (Fade animation) */}
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.2, ease: "easeOut" }}
                   onClick={() => setActiveLightbox(null)}
-                  className="flex size-11 items-center justify-center rounded-full bg-neutral-900/95 border border-white/25 text-white transition-all hover:bg-neutral-800 hover:scale-110 focus:outline-none shadow-2xl cursor-pointer"
-                  aria-label="Close image preview"
-                >
-                  <span className="font-mono text-2xl font-light leading-none">×</span>
-                </button>
-              </div>
-
-              {/* Centered Expanded Image - Pure Vibrant Colors with zero dimming/opacity */}
-              <div className="relative flex items-center justify-center max-h-[85vh] w-full my-auto">
-                <img
-                  key={activeLightbox.images[activeLightbox.currentIndex]}
-                  src={activeLightbox.images[activeLightbox.currentIndex]}
-                  alt={`${activeLightbox.eventName} photo ${activeLightbox.currentIndex + 1}`}
-                  className="w-full max-w-5xl max-h-[85vh] object-contain rounded-xl shadow-2xl block opacity-100 brightness-100"
-                  style={{ filter: 'brightness(100%)', opacity: 1 }}
+                  className="absolute inset-0 bg-black/85 backdrop-blur-md cursor-pointer"
+                  aria-label="Close modal background"
                 />
 
-                {/* Left / Right Navigation Arrows */}
-                {activeLightbox.images.length > 1 && (
-                  <>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setActiveLightbox((prev) =>
-                          prev
-                            ? {
-                                ...prev,
-                                currentIndex:
-                                  (prev.currentIndex - 1 + prev.images.length) % prev.images.length,
-                              }
-                            : null
-                        );
-                      }}
-                      className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-20 flex size-12 items-center justify-center rounded-full bg-neutral-900/90 border border-white/25 text-white text-3xl font-light transition-all hover:bg-black hover:scale-110 focus:outline-none shadow-2xl cursor-pointer"
-                      aria-label="Previous photo"
-                    >
-                      ‹
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setActiveLightbox((prev) =>
-                          prev
-                            ? {
-                                ...prev,
-                                currentIndex:
-                                  (prev.currentIndex + 1) % prev.images.length,
-                              }
-                            : null
-                        );
-                      }}
-                      className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-20 flex size-12 items-center justify-center rounded-full bg-neutral-900/90 border border-white/25 text-white text-3xl font-light transition-all hover:bg-black hover:scale-110 focus:outline-none shadow-2xl cursor-pointer"
-                      aria-label="Next photo"
-                    >
-                      ›
-                    </button>
-                  </>
-                )}
-              </div>
+                {/* 2. Content Wrapper Containing Expanded Image (Fade + Scale animation) */}
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                  onClick={(e) => e.stopPropagation()}
+                  className="relative z-10 flex flex-col items-center justify-between w-full max-w-5xl max-h-[94vh] pointer-events-auto"
+                >
+                  {/* Top Toolbar */}
+                  <div className="w-full flex items-center justify-between z-10 mb-3 px-1 gap-2">
+                    <div className="flex items-center gap-2 sm:gap-3 rounded-full bg-neutral-900/95 px-3.5 py-1.5 sm:px-4 sm:py-2 border border-white/20 shadow-2xl backdrop-blur-sm max-w-[80%]">
+                      <span className="size-2 rounded-full bg-primary shrink-0 animate-pulse" />
+                      <span className="font-mono text-xs font-bold text-white tracking-wide truncate">
+                        {activeLightbox.eventName}
+                      </span>
+                      <span className="text-white/40 hidden sm:inline">|</span>
+                      <span className="font-mono text-[11px] sm:text-xs text-white/80 shrink-0">
+                        Photo {activeLightbox.currentIndex + 1} of {activeLightbox.images.length}
+                      </span>
+                    </div>
 
-              {/* Bottom Thumbnail Dock */}
-              {activeLightbox.images.length > 1 && (
-                <div className="mt-3 z-10 flex gap-2 overflow-x-auto max-w-4xl rounded-xl bg-neutral-900/95 p-2 border border-white/20 shadow-2xl">
-                  {activeLightbox.images.map((imgUrl, idx) => (
+                    {/* Prominent 'X' Close Button */}
                     <button
-                      key={idx}
                       type="button"
-                      onClick={() => {
-                        if (idx !== activeLightbox.currentIndex) {
-                          setActiveLightbox((prev) =>
-                            prev ? { ...prev, currentIndex: idx } : null
-                          );
-                        }
-                      }}
-                      className={`size-14 shrink-0 overflow-hidden rounded-lg transition-all border cursor-pointer ${
-                        idx === activeLightbox.currentIndex
-                          ? "border-primary ring-2 ring-primary/60 scale-105 opacity-100"
-                          : "border-white/10 opacity-50 hover:opacity-90"
-                      }`}
+                      onClick={() => setActiveLightbox(null)}
+                      className="flex size-10 sm:size-11 items-center justify-center rounded-full bg-neutral-900/95 border border-white/25 text-white transition-all hover:bg-neutral-800 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-primary shadow-2xl cursor-pointer"
+                      aria-label="Close image preview"
                     >
-                      <img src={imgUrl} alt="" className="size-full object-cover" />
+                      <span className="font-mono text-2xl font-light leading-none">×</span>
                     </button>
-                  ))}
-                </div>
-              )}
-            </motion.div>
-          </>
+                  </div>
+
+                  {/* Centered Expanded Image - Preserves aspect ratio, fits viewport */}
+                  <div className="relative flex flex-col items-center justify-center max-h-[72vh] sm:max-h-[78vh] w-full my-auto">
+                    <img
+                      key={activeLightbox.images[activeLightbox.currentIndex]}
+                      src={activeLightbox.images[activeLightbox.currentIndex]}
+                      alt={activeLightbox.captions?.[activeLightbox.currentIndex] || `${activeLightbox.eventName} photo ${activeLightbox.currentIndex + 1}`}
+                      className="max-h-[66vh] sm:max-h-[72vh] max-w-full w-auto h-auto object-contain rounded-xl shadow-2xl block select-none"
+                    />
+
+                    {/* Photo Caption */}
+                    {activeLightbox.captions?.[activeLightbox.currentIndex] && (
+                      <div className="z-10 mt-2.5 px-4 py-1 rounded-full bg-neutral-900/90 border border-white/15 backdrop-blur-sm shadow-md text-center max-w-lg">
+                        <span className="font-mono text-xs text-white/90 font-medium">
+                          {activeLightbox.captions[activeLightbox.currentIndex]}
+                        </span>
+                      </div>
+                    )}
+
+                    {/* Left / Right Navigation Arrows */}
+                    {activeLightbox.images.length > 1 && (
+                      <>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setActiveLightbox((prev) =>
+                              prev
+                                ? {
+                                    ...prev,
+                                    currentIndex:
+                                      (prev.currentIndex - 1 + prev.images.length) %
+                                      prev.images.length,
+                                  }
+                                : null
+                            );
+                          }}
+                          className="absolute left-1 sm:left-4 top-1/2 -translate-y-1/2 z-20 flex size-10 sm:size-12 items-center justify-center rounded-full bg-neutral-900/90 border border-white/25 text-white text-2xl sm:text-3xl font-light transition-all hover:bg-black hover:scale-110 focus:outline-none focus:ring-2 focus:ring-primary shadow-2xl cursor-pointer"
+                          aria-label="Previous photo"
+                        >
+                          ‹
+                        </button>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setActiveLightbox((prev) =>
+                              prev
+                                ? {
+                                    ...prev,
+                                    currentIndex:
+                                      (prev.currentIndex + 1) % prev.images.length,
+                                  }
+                                : null
+                            );
+                          }}
+                          className="absolute right-1 sm:right-4 top-1/2 -translate-y-1/2 z-20 flex size-10 sm:size-12 items-center justify-center rounded-full bg-neutral-900/90 border border-white/25 text-white text-2xl sm:text-3xl font-light transition-all hover:bg-black hover:scale-110 focus:outline-none focus:ring-2 focus:ring-primary shadow-2xl cursor-pointer"
+                          aria-label="Next photo"
+                        >
+                          ›
+                        </button>
+                      </>
+                    )}
+                  </div>
+
+                  {/* Bottom Thumbnail Dock */}
+                  {activeLightbox.images.length > 1 && (
+                    <div className="mt-3 z-10 flex gap-2 overflow-x-auto max-w-full sm:max-w-4xl rounded-xl bg-neutral-900/95 p-2 border border-white/20 shadow-2xl">
+                      {activeLightbox.images.map((imgUrl, idx) => (
+                        <button
+                          key={idx}
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (idx !== activeLightbox.currentIndex) {
+                              setActiveLightbox((prev) =>
+                                prev ? { ...prev, currentIndex: idx } : null
+                              );
+                            }
+                          }}
+                          className={`size-12 sm:size-14 shrink-0 overflow-hidden rounded-lg transition-all border cursor-pointer ${
+                            idx === activeLightbox.currentIndex
+                              ? "border-primary ring-2 ring-primary/60 scale-105 opacity-100"
+                              : "border-white/10 opacity-50 hover:opacity-90"
+                          }`}
+                          aria-label={`Switch to photo ${idx + 1}`}
+                        >
+                          <img
+                            src={imgUrl}
+                            alt=""
+                            className="size-full object-cover pointer-events-none"
+                          />
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </motion.div>
+              </div>
+            )}
+          </AnimatePresence>,
+          document.body
         )}
-      </AnimatePresence>
     </>
   );
 }

@@ -119,5 +119,43 @@
       "https://res.cloudinary.com/devyriv6o/image/upload/v1760288331/Screenshot_2025-10-12_222823_qyl5wg.png",
       "https://res.cloudinary.com/devyriv6o/image/upload/v1760288430/Screenshot_2025-10-12_222905_ju2xyr.png"
     ]
+  },
+  {
+    "id": 14,
+    "year": "2026-27",
+    "name": "SY, ITSA, IEEE and MLSC Induction 2026",
+    "overview": "The Induction Ceremony 2026 for the Department of Information Technology was held on 5th August 2026 at the Mechanical Seminar Hall, PCCoE, Pune. The event brought together 150 students and faculty to welcome new members of SY, ITSA, IEEE and MLSC, while honoring outgoing leaders and celebrating the department’s shining stars.",
+    "date": "5th August, 2026",
+    "details": {
+      "eventName": "SY, ITSA, IEEE, and MLSC Induction 2026",
+      "date": "5th August, 2026",
+      "venue": "Seminar Hall, Mechanical Department, PCCoE, Pune",
+      "participants": "150 students and faculty."
+    },
+    "highlights": [
+      "Welcomed new members of SY, ITSA, IEEE, and MLSC.",
+      "Introduced students to the IT Department’s academic and co-curricular opportunities.",
+      "Recognized FY toppers and felicitated outgoing student leaders.",
+      "Introduced the newly appointed ITSA, MLSC and IEEE leadership teams and their vision.",
+      "Recognized former core members and introduced new core teams, leads and co-leads.",
+      "Concluded with the Oath Ceremony and Vote of Thanks."
+    ],
+    "outcome": "Induction 2026 was more than a ceremony—it was a celebration of leadership, legacy and the unstoppable spirit of the IT Department, setting the tone for a year of innovation and collaboration. Students were encouraged to actively participate in technical, extracurricular and professional development activities.",
+    "images": [
+      "/events/induction-2026/saraswati-vandana.jpg",
+      "/events/induction-2026/seminar-hall.jpg",
+      "/events/induction-2026/ex-itsa-core-team.jpg",
+      "/events/induction-2026/new-itsa-team.jpg",
+      "/events/induction-2026/new-sy-itsa-team.jpg",
+      "/events/induction-2026/oath-taking-ceremony.jpg"
+    ],
+    "captions": [
+      "Saraswati Vandana",
+      "Induction Ceremony 2026 Seminar Hall",
+      "Ex-ITSA Core Team",
+      "New ITSA TEAM",
+      "New SY ITSA TEAM",
+      "Oath Taking Ceremony"
+    ]
   }
 ]

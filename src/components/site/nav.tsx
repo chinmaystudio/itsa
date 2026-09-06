@@ -34,9 +34,11 @@ export function SiteNav() {
       >
         <div className="mx-auto flex max-w-[1600px] items-center justify-between gap-4 px-5 py-3 sm:px-8">
           <Link to="/" className="group flex items-center gap-3">
-            <span className="grid size-8 place-items-center bg-foreground font-mono text-[10px] font-bold text-background transition-transform duration-300 group-hover:rotate-90">
-              IT
-            </span>
+            <img
+              src="/itsa-logo-transparent.png"
+              alt="ITSA Logo"
+              className="h-8 w-auto max-w-[100px] object-contain transition-transform duration-300 group-hover:scale-105 dark:invert"
+            />
             <span className="leading-none">
               <span className="block font-display text-base font-extrabold tracking-tight">
                 ITSA

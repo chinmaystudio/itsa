@@ -28,7 +28,14 @@ export function SiteFooter() {
 
       <div className="mx-auto grid max-w-[1600px] gap-10 px-5 py-14 sm:px-8 md:grid-cols-[1.4fr_1fr]">
         <div>
-          <p className="display-md">ITSA</p>
+          <div className="flex items-center gap-3">
+            <img
+              src="/itsa-logo-transparent.png"
+              alt="ITSA Logo"
+              className="h-9 w-auto max-w-[120px] object-contain dark:invert"
+            />
+            <p className="display-md">ITSA</p>
+          </div>
           <p className="mt-4 max-w-sm text-sm text-muted-foreground">{itsa.tagline}</p>
           <div className="mt-6 space-y-1 font-mono text-xs text-muted-foreground">
             <p>{itsa.contact.email}</p>

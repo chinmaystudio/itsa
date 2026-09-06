@@ -167,7 +167,7 @@ function MarqueeRow({
 export function HeroSequence() {
   const reduced = useReducedMotion();
   const [showSimulation, setShowSimulation] = useState(!reduced);
-  const timerRef = useRef<ReturnType<typeof setTimeout>>();
+  const timerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   const finishSimulation = useCallback(() => {
     setShowSimulation(false);

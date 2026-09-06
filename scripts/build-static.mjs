@@ -8,7 +8,12 @@ const routes = [
 ];
 
 async function run() {
-  const basePath = process.env.BASE_PATH || (process.env.GITHUB_ACTIONS ? "/ITSA-WEB" : "/ITSA-WEB");
+  const basePath =
+    process.env.BASE_PATH !== undefined
+      ? process.env.BASE_PATH
+      : process.env.GITHUB_ACTIONS
+        ? "/ITSA-WEB"
+        : "";
   process.env.BASE_PATH = basePath;
   process.env.NITRO_PRESET = "node-server";
 

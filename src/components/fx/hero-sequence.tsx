@@ -127,7 +127,13 @@ function ParticleCanvas({ active }: { active: boolean }) {
     };
   }, []);
 
-  return <canvas ref={canvasRef} aria-hidden className="absolute inset-0 h-full w-full pointer-events-none" />;
+  return (
+    <canvas
+      ref={canvasRef}
+      aria-hidden
+      className="absolute inset-0 h-full w-full pointer-events-none"
+    />
+  );
 }
 
 /* ──────────── Kinetic Scrolling Marquee Row ──────────── */
@@ -242,12 +248,7 @@ export function HeroSequence() {
                 style={{ transform: "rotate(-8deg)" }}
               >
                 {KINETIC_ROWS.map((row, i) => (
-                  <MarqueeRow
-                    key={i}
-                    items={row}
-                    reverse={i % 2 === 1}
-                    speed={20 + i * 3.5}
-                  />
+                  <MarqueeRow key={i} items={row} reverse={i % 2 === 1} speed={20 + i * 3.5} />
                 ))}
               </div>
             </div>
@@ -299,7 +300,9 @@ export function HeroSequence() {
             </div>
 
             <Reveal delay={0.3} className="flex flex-col justify-end">
-              <p className="text-base sm:text-lg leading-relaxed text-muted-foreground">{itsa.tagline}</p>
+              <p className="text-base sm:text-lg leading-relaxed text-muted-foreground">
+                {itsa.tagline}
+              </p>
               <div className="mt-8 flex flex-wrap gap-3">
                 <Magnetic>
                   <Link

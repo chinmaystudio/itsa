@@ -12,11 +12,18 @@ const ROUTE_KEYS: Record<string, string> = {
   "/contact": "contact",
 };
 
+function routeKeyFor(pathname: string): string {
+  if (ROUTE_KEYS[pathname]) return ROUTE_KEYS[pathname]!;
+  if (pathname.startsWith("/teams")) return "teams";
+  if (pathname.startsWith("/events")) return "events";
+  return "index";
+}
+
 /** Ink-slab wipe between routes plus per-route accent identity. */
 export function PageTransition({ children }: { children: ReactNode }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const reduced = useReducedMotion();
-  const key = ROUTE_KEYS[pathname] ?? "index";
+  const key = routeKeyFor(pathname);
 
   useEffect(() => {
     document.documentElement.dataset["route"] = key;

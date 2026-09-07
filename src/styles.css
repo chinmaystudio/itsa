@@ -134,26 +134,7 @@
     letter-spacing: -0.035em;
   }
 
-  /* Hide Lovable watermark / badge */
-  #lovable-badge,
-  #lovable-badge-container,
-  [data-lovable-badge],
-  .lovable-badge,
-  #lovable-container,
-  [id*="lovable-badge"],
-  [class*="lovable-badge"],
-  [id*="lovable-watermark"],
-  .lovable-watermark,
-  #lovable-watermark,
-  a[href*="lovable.dev"],
-  iframe[src*="lovable.dev"],
-  .gpt-engineer-badge,
-  #gpt-engineer-badge {
-    display: none !important;
-    visibility: hidden !important;
-    opacity: 0 !important;
-    pointer-events: none !important;
-  }
+  /* Selection uses the acid highlight for editorial pop. */
 }
 
 @utility label-mono {
@@ -335,5 +316,3 @@ html.dark[data-route="contact"] {
     transition-duration: 0.001ms !important;
   }
 }
-
-

@@ -2,10 +2,7 @@ import { execSync, spawn } from "node:child_process";
 import fs from "node:fs/promises";
 import path from "node:path";
 
-const routes = [
-  "/",
-  "/events",
-];
+const routes = ["/", "/teams", "/events"];
 
 async function run() {
   const basePath =
@@ -56,17 +53,13 @@ async function run() {
     const res = await fetch(`http://localhost:3456${fetchPath}`);
     const html = await res.text();
 
-    const targetDir =
-      route === "/" ? publicDir : path.join(publicDir, route.slice(1));
+    const targetDir = route === "/" ? publicDir : path.join(publicDir, route.slice(1));
     await fs.mkdir(targetDir, { recursive: true });
     await fs.writeFile(path.join(targetDir, "index.html"), html, "utf-8");
   }
 
   // Create 404.html for GitHub Pages client router fallback
-  const indexHtml = await fs.readFile(
-    path.join(publicDir, "index.html"),
-    "utf-8"
-  );
+  const indexHtml = await fs.readFile(path.join(publicDir, "index.html"), "utf-8");
   await fs.writeFile(path.join(publicDir, "404.html"), indexHtml, "utf-8");
 
   // Create .nojekyll so GitHub Pages doesn't ignore assets or run Jekyll

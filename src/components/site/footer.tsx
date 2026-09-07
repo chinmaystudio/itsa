@@ -8,6 +8,7 @@ const columns = [
     title: "Pages",
     links: [
       { to: "/", label: "Home" },
+      { to: "/teams", label: "Team" },
       { to: "/events", label: "Events" },
     ],
   },

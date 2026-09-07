@@ -39,10 +39,21 @@ function getEventCategory(name: string, overview: string): string {
   if (text.includes("bruteforge") || text.includes("competition") || text.includes("forge")) {
     return "competitions";
   }
-  if (text.includes("workshop") || text.includes("ai") || text.includes("techroom") || text.includes("training")) {
+  if (
+    text.includes("workshop") ||
+    text.includes("ai") ||
+    text.includes("techroom") ||
+    text.includes("training")
+  ) {
     return "workshops";
   }
-  if (text.includes("nss") || text.includes("plantation") || text.includes("cleanliness") || text.includes("school") || text.includes("teacher")) {
+  if (
+    text.includes("nss") ||
+    text.includes("plantation") ||
+    text.includes("cleanliness") ||
+    text.includes("school") ||
+    text.includes("teacher")
+  ) {
     return "community";
   }
   return "career";
@@ -94,7 +105,7 @@ type ActiveLightbox = {
 function Events() {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState<string>("");
-  
+
   // Year dropdown states: both open by default
   const [open2026_27, setOpen2026_27] = useState(true);
   const [open2025_26, setOpen2025_26] = useState(true);
@@ -123,10 +134,9 @@ function Events() {
           prev
             ? {
                 ...prev,
-                currentIndex:
-                  (prev.currentIndex - 1 + prev.images.length) % prev.images.length,
+                currentIndex: (prev.currentIndex - 1 + prev.images.length) % prev.images.length,
               }
-            : null
+            : null,
         );
       } else if (e.key === "ArrowRight") {
         setActiveLightbox((prev) =>
@@ -135,7 +145,7 @@ function Events() {
                 ...prev,
                 currentIndex: (prev.currentIndex + 1) % prev.images.length,
               }
-            : null
+            : null,
         );
       }
     };
@@ -201,7 +211,8 @@ function Events() {
 
           {/* Meaningful Description */}
           <p className="mt-5 max-w-2xl text-base sm:text-lg leading-relaxed text-muted-foreground">
-            A comprehensive record of technical hackathons, AI workshops, career guidance, and community initiatives driven by the Information Technology Students&apos; Association.
+            A comprehensive record of technical hackathons, AI workshops, career guidance, and
+            community initiatives driven by the Information Technology Students&apos; Association.
           </p>
 
           {/* Real-World Metrics Grid */}
@@ -211,21 +222,27 @@ function Events() {
               <p className="mt-1 font-display text-2xl sm:text-3xl font-extrabold text-foreground">
                 {allEvents.length}+
               </p>
-              <p className="mt-1 font-mono text-[10px] text-muted-foreground">Competitions & drives</p>
+              <p className="mt-1 font-mono text-[10px] text-muted-foreground">
+                Competitions & drives
+              </p>
             </div>
             <div className="bg-background px-5 py-4">
               <p className="label-mono text-[10px]">Active Wings</p>
               <p className="mt-1 font-display text-2xl sm:text-3xl font-extrabold text-foreground">
                 06
               </p>
-              <p className="mt-1 font-mono text-[10px] text-muted-foreground">IEEE · MLSC · GDGC · NSS</p>
+              <p className="mt-1 font-mono text-[10px] text-muted-foreground">
+                IEEE · MLSC · GDGC · NSS
+              </p>
             </div>
             <div className="bg-background px-5 py-4">
               <p className="label-mono text-[10px]">Student Reach</p>
               <p className="mt-1 font-display text-2xl sm:text-3xl font-extrabold text-primary">
                 500+
               </p>
-              <p className="mt-1 font-mono text-[10px] text-muted-foreground">Participants engaged</p>
+              <p className="mt-1 font-mono text-[10px] text-muted-foreground">
+                Participants engaged
+              </p>
             </div>
             <div className="bg-background px-5 py-4">
               <p className="label-mono text-[10px]">Department</p>
@@ -246,7 +263,8 @@ function Events() {
                   const count =
                     cat.id === "all"
                       ? allEvents.length
-                      : allEvents.filter((e) => getEventCategory(e.name, e.overview) === cat.id).length;
+                      : allEvents.filter((e) => getEventCategory(e.name, e.overview) === cat.id)
+                          .length;
 
                   return (
                     <button
@@ -298,8 +316,8 @@ function Events() {
             {/* Results count banner */}
             <div className="flex items-center justify-between border-t border-border pt-3 font-mono text-[11px] text-muted-foreground">
               <p>
-                Showing <span className="font-bold text-foreground">{filteredEvents.length}</span> of{" "}
-                <span className="font-bold text-foreground">{allEvents.length}</span> events
+                Showing <span className="font-bold text-foreground">{filteredEvents.length}</span>{" "}
+                of <span className="font-bold text-foreground">{allEvents.length}</span> events
               </p>
               {(selectedCategory !== "all" || searchQuery) && (
                 <button
@@ -338,7 +356,9 @@ function Events() {
                     Academic Year
                   </span>
                   <span className="rounded-full bg-primary/10 border border-primary/20 px-2 py-0.5 font-mono text-[10px] text-primary font-bold">
-                    {events2026_27.length > 0 ? `${events2026_27.length} Events` : "Upcoming Tenure"}
+                    {events2026_27.length > 0
+                      ? `${events2026_27.length} Events`
+                      : "Upcoming Tenure"}
                   </span>
                 </div>
                 <h2 className="mt-2 font-display text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground">
@@ -375,7 +395,8 @@ function Events() {
                         Tenure 2026–2027 In Preparation
                       </h3>
                       <p className="mt-2 max-w-md text-sm text-muted-foreground leading-relaxed">
-                        Upcoming event logs, photographs, and overviews for the 2026–27 academic year will be documented here as they are conducted.
+                        Upcoming event logs, photographs, and overviews for the 2026–27 academic
+                        year will be documented here as they are conducted.
                       </p>
                       <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
                         <span className="rounded bg-surface px-3 py-1 font-mono text-[10px] uppercase tracking-[0.16em] text-foreground border border-border">
@@ -407,7 +428,11 @@ function Events() {
                                 role="button"
                                 tabIndex={0}
                                 onKeyDown={(ev) => {
-                                  if ((ev.key === "Enter" || ev.key === " ") && e.images && e.images.length > 0) {
+                                  if (
+                                    (ev.key === "Enter" || ev.key === " ") &&
+                                    e.images &&
+                                    e.images.length > 0
+                                  ) {
                                     setActiveLightbox({
                                       eventName: e.name,
                                       images: e.images,
@@ -445,8 +470,18 @@ function Events() {
                                 </figcaption>
                                 {e.images && e.images.length > 0 && (
                                   <div className="absolute right-3 top-3 inline-flex items-center gap-1.5 rounded-full bg-black/75 px-3 py-1.5 text-[11px] font-mono text-white opacity-0 transition-opacity backdrop-blur-sm group-hover:opacity-100 z-10 shadow-lg pointer-events-none">
-                                    <svg className="size-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7" />
+                                    <svg
+                                      className="size-3.5"
+                                      fill="none"
+                                      stroke="currentColor"
+                                      viewBox="0 0 24 24"
+                                    >
+                                      <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7"
+                                      />
                                     </svg>
                                     <span>Click to expand</span>
                                   </div>
@@ -603,9 +638,14 @@ function Events() {
                                                 </div>
                                                 <ul className="space-y-2.5 text-xs sm:text-sm text-muted-foreground">
                                                   {e.highlights.map((highlight, hIdx) => (
-                                                    <li key={hIdx} className="flex items-start gap-3">
+                                                    <li
+                                                      key={hIdx}
+                                                      className="flex items-start gap-3"
+                                                    >
                                                       <span className="mt-1 size-1.5 rounded-full bg-primary shrink-0" />
-                                                      <span className="leading-relaxed">{highlight}</span>
+                                                      <span className="leading-relaxed">
+                                                        {highlight}
+                                                      </span>
                                                     </li>
                                                   ))}
                                                 </ul>
@@ -706,7 +746,11 @@ function Events() {
                                 role="button"
                                 tabIndex={0}
                                 onKeyDown={(ev) => {
-                                  if ((ev.key === "Enter" || ev.key === " ") && e.images && e.images.length > 0) {
+                                  if (
+                                    (ev.key === "Enter" || ev.key === " ") &&
+                                    e.images &&
+                                    e.images.length > 0
+                                  ) {
                                     setActiveLightbox({
                                       eventName: e.name,
                                       images: e.images,
@@ -742,8 +786,18 @@ function Events() {
                                 </figcaption>
                                 {e.images && e.images.length > 0 && (
                                   <div className="absolute right-3 top-3 inline-flex items-center gap-1.5 rounded-full bg-black/75 px-3 py-1.5 text-[11px] font-mono text-white opacity-0 transition-opacity backdrop-blur-sm group-hover:opacity-100 z-10 shadow-lg pointer-events-none">
-                                    <svg className="size-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7" />
+                                    <svg
+                                      className="size-3.5"
+                                      fill="none"
+                                      stroke="currentColor"
+                                      viewBox="0 0 24 24"
+                                    >
+                                      <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7"
+                                      />
                                     </svg>
                                     <span>Click to expand</span>
                                   </div>
@@ -875,7 +929,10 @@ function Events() {
                     <img
                       key={activeLightbox.images[activeLightbox.currentIndex]}
                       src={activeLightbox.images[activeLightbox.currentIndex]}
-                      alt={activeLightbox.captions?.[activeLightbox.currentIndex] || `${activeLightbox.eventName} photo ${activeLightbox.currentIndex + 1}`}
+                      alt={
+                        activeLightbox.captions?.[activeLightbox.currentIndex] ||
+                        `${activeLightbox.eventName} photo ${activeLightbox.currentIndex + 1}`
+                      }
                       className="max-h-[66vh] sm:max-h-[72vh] max-w-full w-auto h-auto object-contain rounded-xl shadow-2xl block select-none"
                     />
 
@@ -903,7 +960,7 @@ function Events() {
                                       (prev.currentIndex - 1 + prev.images.length) %
                                       prev.images.length,
                                   }
-                                : null
+                                : null,
                             );
                           }}
                           className="absolute left-1 sm:left-4 top-1/2 -translate-y-1/2 z-20 flex size-10 sm:size-12 items-center justify-center rounded-full bg-neutral-900/90 border border-white/25 text-white text-2xl sm:text-3xl font-light transition-all hover:bg-black hover:scale-110 focus:outline-none focus:ring-2 focus:ring-primary shadow-2xl cursor-pointer"
@@ -919,10 +976,9 @@ function Events() {
                               prev
                                 ? {
                                     ...prev,
-                                    currentIndex:
-                                      (prev.currentIndex + 1) % prev.images.length,
+                                    currentIndex: (prev.currentIndex + 1) % prev.images.length,
                                   }
-                                : null
+                                : null,
                             );
                           }}
                           className="absolute right-1 sm:right-4 top-1/2 -translate-y-1/2 z-20 flex size-10 sm:size-12 items-center justify-center rounded-full bg-neutral-900/90 border border-white/25 text-white text-2xl sm:text-3xl font-light transition-all hover:bg-black hover:scale-110 focus:outline-none focus:ring-2 focus:ring-primary shadow-2xl cursor-pointer"
@@ -945,7 +1001,7 @@ function Events() {
                             e.stopPropagation();
                             if (idx !== activeLightbox.currentIndex) {
                               setActiveLightbox((prev) =>
-                                prev ? { ...prev, currentIndex: idx } : null
+                                prev ? { ...prev, currentIndex: idx } : null,
                               );
                             }
                           }}
@@ -969,12 +1025,8 @@ function Events() {
               </div>
             )}
           </AnimatePresence>,
-          document.body
+          document.body,
         )}
     </>
   );
 }
-
-
-
-

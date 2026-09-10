@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contact &amp; Register — ITSA | PCCOE</title>
+
+  <!-- Google Fonts matching itsanp.vercel.app visual design system -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=IBM+Plex+Mono:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap"
+    rel="stylesheet" />
+
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem("itsa-theme");
+        if (!t) {
+          t = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+        }
+        document.documentElement.classList.toggle("dark", t === "dark");
+      } catch (e) { }
+    })();
+  </script>
+
+  <style>
+    /* ==========================================================================
+       DESIGN SYSTEM TOKENS & THEMING (Extracted directly from itsanp.vercel.app)
+       ========================================================================== */
+    :root {
+      --radius: 0rem;
+      --font-display: "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
+      --font-sans: "Manrope", ui-sans-serif, system-ui, sans-serif;
+      --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+
+      /* Light Theme Colors */
+      --background: oklch(95.8% 0.008 95);
+      --foreground: oklch(18% 0.012 80);
+      --surface: oklch(92.5% 0.01 95);
+      --surface-2: oklch(89.2% 0.012 95);
+      --card: oklch(97.5% 0.006 95);
+      --card-foreground: oklch(18% 0.012 80);
+      --primary: oklch(47% 0.243 268);
+      --primary-foreground: oklch(98% 0.005 95);
+      --secondary: oklch(90% 0.012 95);
+      --secondary-foreground: oklch(18% 0.012 80);
+      --muted: oklch(91.5% 0.01 95);
+      --muted-foreground: oklch(46% 0.014 85);
+      --accent: oklch(88% 0.21 122);
+      --accent-foreground: oklch(20% 0.06 122);
+      --acid: oklch(88% 0.21 122);
+      --destructive: oklch(55% 0.22 27);
+      --destructive-foreground: oklch(98% 0.005 95);
+      --border: oklch(18% 0.012 80 / 0.16);
+      --input: oklch(18% 0.012 80 / 0.22);
+      --ring: oklch(47% 0.243 268);
+      --map-filter: saturate(0.9) contrast(1.05);
+    }
+
+    .dark {
+      /* Dark Theme Colors */
+      --background: oklch(15.5% 0.009 275);
+      --foreground: oklch(94.5% 0.008 95);
+      --surface: oklch(20.3% 0.012 275);
+      --surface-2: oklch(24.8% 0.014 275);
+      --card: oklch(20.3% 0.012 275);
+      --card-foreground: oklch(94.5% 0.008 95);
+      --primary: oklch(70% 0.19 268);
+      --primary-foreground: oklch(16% 0.03 268);
+      --secondary: oklch(24.8% 0.014 275);
+      --secondary-foreground: oklch(94.5% 0.008 95);
+      --muted: oklch(24.8% 0.014 275);
+      --muted-foreground: oklch(72% 0.012 95);
+      --accent: oklch(88% 0.21 122);
+      --accent-foreground: oklch(18% 0.06 122);
+      --acid: oklch(88% 0.21 122);
+      --destructive: oklch(65% 0.22 27);
+      --destructive-foreground: oklch(98% 0.005 95);
+      --border: oklch(94.5% 0.008 95 / 0.18);
+      --input: oklch(94.5% 0.008 95 / 0.24);
+      --ring: oklch(70% 0.19 268);
+      --map-filter: invert(0.9) hue-rotate(215deg) saturate(0.7) contrast(1.1);
+    }
+
+    /* Reset & Base */
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    body {
+      min-height: 100vh;
+      background-color: var(--background);
+      color: var(--foreground);
+      font-family: var(--font-sans);
+      line-height: 1.5;
+      position: relative;
+      overflow-x: hidden;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    /* Architectural Paper Grid Background */
+    .grid-paper {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(to right, var(--border) 1px, transparent 1px),
+        linear-gradient(to bottom, var(--border) 1px, transparent 1px);
+      background-size: 88px 88px;
+      -webkit-mask-image: radial-gradient(90% 70% at 50% 30%, #000, transparent 85%);
+      mask-image: radial-gradient(90% 70% at 50% 30%, #000, transparent 85%);
+      opacity: 0.6;
+    }
+
+    /* Top Ambient Lighting */
+    .ambient-glow {
+      position: absolute;
+      bottom: 0;
+      left: 25%;
+      width: 24rem;
+      height: 24rem;
+      border-radius: 9999px;
+      background-color: var(--primary);
+      opacity: 0.08;
+      filter: blur(120px);
+      pointer-events: none;
+    }
+
+    /* Container */
+    .container {
+      width: 100%;
+      max-width: 1280px;
+      margin-left: auto;
+      margin-right: auto;
+      padding-left: 1.25rem;
+      padding-right: 1.25rem;
+    }
+
+    @media (min-width: 640px) {
+      .container {
+        padding-left: 2rem;
+        padding-right: 2rem;
+      }
+    }
+
+    @media (min-width: 1024px) {
+      .container {
+        padding-left: 3rem;
+        padding-right: 3rem;
+      }
+    }
+
+    /* Top Theme Toggle Bar */
+    .theme-bar {
+      position: absolute;
+      top: 1.25rem;
+      right: 1.25rem;
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .theme-toggle-btn {
+      position: relative;
+      display: inline-flex;
+      height: 2.25rem;
+      width: 4.25rem;
+      align-items: center;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      padding: 0.25rem;
+      cursor: pointer;
+      transition: border-color 0.2s ease, background-color 0.2s ease;
+    }
+
+    .theme-toggle-btn:hover {
+      border-color: var(--foreground);
+    }
+
+    .theme-toggle-thumb {
+      position: absolute;
+      height: 1.75rem;
+      width: 1.75rem;
+      background: var(--foreground);
+      left: 0.25rem;
+      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .dark .theme-toggle-thumb {
+      transform: translateX(2rem);
+    }
+
+    .theme-icon-light {
+      position: relative;
+      z-index: 10;
+      width: 1.75rem;
+      height: 1.75rem;
+      display: grid;
+      place-items: center;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--background);
+      transition: color 0.2s ease;
+    }
+
+    .dark .theme-icon-light {
+      color: var(--muted-foreground);
+    }
+
+    .theme-icon-dark {
+      position: relative;
+      z-index: 10;
+      width: 1.75rem;
+      height: 1.75rem;
+      display: grid;
+      place-items: center;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--muted-foreground);
+      margin-left: auto;
+      transition: color 0.2s ease;
+    }
+
+    .dark .theme-icon-dark {
+      color: var(--background);
+    }
+
+    /* Section Layout */
+    #contact {
+      position: relative;
+      padding-top: 6rem;
+      padding-bottom: 6rem;
+    }
+
+    @media (min-width: 640px) {
+      #contact {
+        padding-top: 8rem;
+        padding-bottom: 8rem;
+      }
+    }
+
+    /* Header Section */
+    .header-content {
+      max-width: 42rem;
+    }
+
+    /* Eyebrow / Label Mono matching itsanp style */
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-family: var(--font-mono);
+      font-size: 0.6875rem;
+      line-height: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.22em;
+      color: var(--primary);
+      margin-bottom: 1rem;
+      padding: 0.25rem 0.6rem;
+      border: 1px solid var(--border);
+      background: var(--surface);
+    }
+
+    .eyebrow svg {
+      width: 0.875rem;
+      height: 0.875rem;
+      stroke: currentColor;
+    }
+
+    /* Heading matching itsanp display font and brutalist hierarchy */
+    .heading-lg {
+      font-family: var(--font-display);
+      font-size: clamp(2rem, 5.5vw, 3.75rem);
+      font-weight: 800;
+      line-height: 0.98;
+      letter-spacing: -0.04em;
+      color: var(--foreground);
+    }
+
+    /* Distinctive Theme Accent / Gradient */
+    .text-gradient {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--acid) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      display: inline-block;
+      font-weight: 800;
+    }
+
+    .body-lg {
+      margin-top: 1.25rem;
+      font-size: clamp(1rem, 1.4vw, 1.125rem);
+      line-height: 1.65;
+      color: var(--muted-foreground);
+    }
+
+    /* Two-Column Grid */
+    .contact-grid {
+      margin-top: 3rem;
+      display: grid;
+      gap: 1.5rem;
+    }
+
+    @media (min-width: 1024px) {
+      .contact-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    /* Ink Card Container from itsanp design system */
+    .ink-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      position: relative;
+      transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+        box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+        border-color 0.3s ease;
+    }
+
+    .form-card {
+      padding: 1.5rem;
+    }
+
+    @media (min-width: 640px) {
+      .form-card {
+        padding: 2rem;
+      }
+    }
+
+    .form-card:hover {
+      border-color: var(--foreground);
+      box-shadow: 6px 6px 0 0 var(--border);
+    }
+
+    /* Form Fields */
+    .space-y-5>*+* {
+      margin-top: 1.25rem;
+    }
+
+    .field-wrapper {
+      position: relative;
+    }
+
+    .field-input,
+    .field-textarea {
+      width: 100%;
+      border: 1px solid var(--input);
+      background-color: var(--surface);
+      color: var(--foreground);
+      font-family: var(--font-sans);
+      font-size: 0.875rem;
+      padding: 1.35rem 1rem 0.55rem 1rem;
+      outline: none;
+      border-radius: 0;
+      transition: border-color 0.25s ease, background-color 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    .field-textarea {
+      resize: none;
+      min-height: 7.5rem;
+    }
+
+    .field-input:focus,
+    .field-textarea:focus {
+      border-color: var(--primary);
+      background-color: var(--background);
+      box-shadow: 4px 4px 0 0 var(--primary);
+    }
+
+    .field-input.has-error,
+    .field-textarea.has-error {
+      border-color: var(--destructive);
+      box-shadow: 4px 4px 0 0 var(--destructive);
+    }
+
+    /* Floating Labels with itsanp Monospace / Technical Character */
+    .field-label {
+      pointer-events: none;
+      position: absolute;
+      left: 1rem;
+      top: 1rem;
+      font-family: var(--font-mono);
+      font-size: 0.8125rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted-foreground);
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .field-input:focus~.field-label,
+    .field-input:not(:placeholder-shown)~.field-label,
+    .field-textarea:focus~.field-label,
+    .field-textarea:not(:placeholder-shown)~.field-label {
+      top: 0.35rem;
+      font-size: 0.65rem;
+      color: var(--primary);
+      letter-spacing: 0.18em;
+    }
+
+    .field-input.has-error~.field-label,
+    .field-textarea.has-error~.field-label {
+      color: var(--destructive);
+    }
+
+    /* Error Message */
+    .error-msg {
+      margin-top: 0.4rem;
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--destructive);
+      letter-spacing: 0.02em;
+    }
+
+    .error-msg svg {
+      width: 0.75rem;
+      height: 0.75rem;
+      stroke: currentColor;
+      flex-shrink: 0;
+    }
+
+    /* Primary Action Button matching itsanp brutalist style */
+    .btn-primary {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.625rem;
+      width: 100%;
+      min-height: 3.25rem;
+      padding: 0.875rem 1.5rem;
+      border: 1px solid var(--foreground);
+      background-color: var(--foreground);
+      color: var(--background);
+      font-family: var(--font-mono);
+      font-size: 0.6875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      cursor: pointer;
+      border-radius: 0;
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+        box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+        background-color 0.2s ease,
+        color 0.2s ease;
+      will-change: transform;
+    }
+
+    .btn-primary svg {
+      width: 1rem;
+      height: 1rem;
+      stroke: currentColor;
+      transition: transform 0.3s ease;
+    }
+
+    .btn-primary:hover {
+      background-color: var(--primary);
+      border-color: var(--primary);
+      color: var(--primary-foreground);
+      transform: translate(-3px, -3px);
+      box-shadow: 6px 6px 0 0 var(--foreground);
+    }
+
+    .btn-primary:hover svg {
+      transform: translateX(2px) translateY(-2px);
+    }
+
+    .btn-primary:active {
+      transform: translate(0, 0);
+      box-shadow: 2px 2px 0 0 var(--foreground);
+    }
+
+    /* Submission Success Banner */
+    .success-alert {
+      display: flex;
+      align-items: center;
+      gap: 0.625rem;
+      border: 1px solid var(--acid);
+      background: color-mix(in oklch, var(--acid) 12%, var(--card));
+      padding: 0.875rem 1rem;
+      font-family: var(--font-mono);
+      font-size: 0.8125rem;
+      color: var(--foreground);
+      margin-top: 1.25rem;
+      animation: alertEnter 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .success-alert svg {
+      width: 1.125rem;
+      height: 1.125rem;
+      stroke: var(--acid);
+      flex-shrink: 0;
+    }
+
+    @keyframes alertEnter {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes spin {
+      from {
+        transform: rotate(0deg);
+      }
+
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* Column 2: Side Stack */
+    .side-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    /* Map Card */
+    .map-card {
+      overflow: hidden;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      position: relative;
+    }
+
+    .map-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.5rem 0.875rem;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface-2);
+      font-family: var(--font-mono);
+      font-size: 0.625rem;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: var(--muted-foreground);
+    }
+
+    .map-status-dot {
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background-color: var(--acid);
+      box-shadow: 0 0 6px var(--acid);
+      margin-right: 0.4rem;
+    }
+
+    .map-iframe {
+      display: block;
+      width: 100%;
+      height: 280px;
+      border: 0;
+      filter: var(--map-filter);
+      transition: filter 0.3s ease;
+    }
+
+    .map-card:hover {
+      border-color: var(--foreground);
+      box-shadow: 6px 6px 0 0 var(--border);
+    }
+
+    /* Info Details Card */
+    .info-card {
+      padding: 1.5rem;
+      background: var(--card);
+      border: 1px solid var(--border);
+    }
+
+    .info-card:hover {
+      border-color: var(--foreground);
+      box-shadow: 6px 6px 0 0 var(--border);
+    }
+
+    .info-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.875rem;
+    }
+
+    .info-item+.info-item {
+      margin-top: 1.25rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .info-icon-box {
+      display: grid;
+      width: 2.5rem;
+      height: 2.5rem;
+      flex-shrink: 0;
+      place-items: center;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      color: var(--primary);
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+        background-color 0.3s ease,
+        color 0.3s ease;
+    }
+
+    .info-item:hover .info-icon-box {
+      transform: rotate(90deg);
+      background-color: var(--primary);
+      color: var(--primary-foreground);
+      border-color: var(--primary);
+    }
+
+    .info-icon-box svg {
+      width: 1.125rem;
+      height: 1.125rem;
+      stroke: currentColor;
+    }
+
+    .info-meta {
+      min-width: 0;
+    }
+
+    .info-label {
+      font-family: var(--font-mono);
+      font-size: 0.625rem;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: var(--muted-foreground);
+      line-height: 1;
+      margin-bottom: 0.35rem;
+    }
+
+    .info-value {
+      font-family: var(--font-sans);
+      font-size: 0.875rem;
+      color: var(--foreground);
+      font-weight: 500;
+      line-height: 1.4;
+      word-break: break-word;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Background Grid & Mood elements -->
+  <div class="grid-paper" aria-hidden="true"></div>
+  <div class="ambient-glow" aria-hidden="true"></div>
+
+  <!-- Theme Switcher (Matching itsanp.vercel.app toggle) -->
+  <div class="theme-bar">
+    <button id="themeToggle" type="button" class="theme-toggle-btn" aria-label="Switch theme mode" title="Toggle theme">
+      <span class="theme-toggle-thumb" aria-hidden="true"></span>
+      <span class="theme-icon-light" aria-hidden="true">☀</span>
+      <span class="theme-icon-dark" aria-hidden="true">☾</span>
+    </button>
+  </div>
+
+  <!-- Main Contact Section (Exact structure & content from demo10-seven.vercel.app) -->
+  <section id="contact">
+    <div class="container">
+      <!-- Section Header -->
+      <div class="header-content">
+        <span class="eyebrow">
+          <!-- Mail icon (_h) -->
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect width="20" height="16" x="2" y="4" rx="2"></rect>
+            <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
+          </svg>
+          Contact &amp; Register
+        </span>
+        <h2 class="heading-lg">
+          Let's <span class="text-gradient">grow</span> something together.
+        </h2>
+        <p class="body-lg">
+          Reach out for registrations, sponsorships, or collaborations. We respond within two working days.
+        </p>
+      </div>
+
+      <!-- 2-Column Grid Layout -->
+      <div class="contact-grid">
+        <!-- Column 1: Interactive Contact Form -->
+        <div class="ink-card form-card">
+          <form id="contactForm" novalidate class="space-y-5">
+            <!-- Field 1: Your Name -->
+            <div class="field-wrapper">
+              <input type="text" id="name" name="name" class="field-input" placeholder=" " autocomplete="name" />
+              <label for="name" class="field-label">Your Name</label>
+              <div id="nameError" class="error-msg" style="display: none;">
+                <!-- CircleAlert icon (yy) -->
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="12" x2="12" y1="8" y2="12"></line>
+                  <line x1="12" x2="12.01" y1="16" y2="16"></line>
+                </svg>
+                <span class="error-text">Please enter your name.</span>
+              </div>
+            </div>
+
+            <!-- Field 2: Email Address -->
+            <div class="field-wrapper">
+              <input type="email" id="email" name="email" class="field-input" placeholder=" " autocomplete="email" />
+              <label for="email" class="field-label">Email Address</label>
+              <div id="emailError" class="error-msg" style="display: none;">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="12" x2="12" y1="8" y2="12"></line>
+                  <line x1="12" x2="12.01" y1="16" y2="16"></line>
+                </svg>
+                <span class="error-text">Please enter your email.</span>
+              </div>
+            </div>
+
+            <!-- Field 3: Subject -->
+            <div class="field-wrapper">
+              <input type="text" id="subject" name="subject" class="field-input" placeholder=" " />
+              <label for="subject" class="field-label">Subject</label>
+              <div id="subjectError" class="error-msg" style="display: none;">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="12" x2="12" y1="8" y2="12"></line>
+                  <line x1="12" x2="12.01" y1="16" y2="16"></line>
+                </svg>
+                <span class="error-text">Please add a subject.</span>
+              </div>
+            </div>
+
+            <!-- Field 4: Message -->
+            <div class="field-wrapper">
+              <textarea id="message" name="message" rows="4" class="field-textarea" placeholder=" "></textarea>
+              <label for="message" class="field-label">Message</label>
+              <div id="messageError" class="error-msg" style="display: none;">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="12" x2="12" y1="8" y2="12"></line>
+                  <line x1="12" x2="12.01" y1="16" y2="16"></line>
+                </svg>
+                <span class="error-text">Tell us a little more.</span>
+              </div>
+            </div>
+
+            <!-- Submit Button (xT icon) -->
+            <button type="submit" class="btn-primary">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path
+                  d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z">
+                </path>
+                <path d="m21.854 2.147-10.94 10.939"></path>
+              </svg>
+              Send Message
+            </button>
+
+            <!-- Success Alert (vy icon) -->
+            <div id="successAlert" class="success-alert" style="display: none;">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="10"></circle>
+                <path d="m9 12 2 2 4-4"></path>
+              </svg>
+              <span>Thanks! Your message has been recorded — we'll be in touch.</span>
+            </div>
+          </form>
+        </div>
+
+        <!-- Column 2: Google Maps Embed & Contact Details -->
+        <div class="side-stack">
+          <!-- Google Maps Embed Card -->
+          <div class="ink-card map-card">
+            <div class="map-card-header">
+              <span><span class="map-status-dot"></span>Location Map</span>
+              <span>PCCOE Pune</span>
+            </div>
+            <iframe title="PCCOE Campus Location"
+              src="https://www.google.com/maps?q=Pimpri+Chinchwad+College+of+Engineering+Sector+26+Pradhikaran+Nigdi+Pune&amp;output=embed"
+              class="map-iframe" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+          </div>
+
+          <!-- Contact Details Card -->
+          <div class="ink-card info-card">
+            <!-- Item 1: Address (MapPin icon - ky) -->
+            <div class="info-item">
+              <span class="info-icon-box">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path
+                    d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0">
+                  </path>
+                  <circle cx="12" cy="10" r="3"></circle>
+                </svg>
+              </span>
+              <div class="info-meta">
+                <div class="info-label">Address</div>
+                <div class="info-value">PCCOE, Sector 26, Pradhikaran, Nigdi, Pune — 411044</div>
+              </div>
+            </div>
+
+            <!-- Item 2: Email (Mail icon - _h) -->
+            <div class="info-item">
+              <span class="info-icon-box">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <rect width="20" height="16" x="2" y="4" rx="2"></rect>
+                  <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
+                </svg>
+              </span>
+              <div class="info-meta">
+                <div class="info-label">Email</div>
+                <div class="info-value">itsa.pccoe@pccoepune.org</div>
+              </div>
+            </div>
+
+            <!-- Item 3: Phone (Phone icon - vT) -->
+            <div class="info-item">
+              <span class="info-icon-box">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path
+                    d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z">
+                  </path>
+                </svg>
+              </span>
+              <div class="info-meta">
+                <div class="info-label">Phone</div>
+                <div class="info-value">+91 98765 43210 (Student Council)</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Interactive Form Validation & State Logic matching demo10 exactly -->
+  <script>
+    (function () {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+      const form = document.getElementById("contactForm");
+      const nameInput = document.getElementById("name");
+      const emailInput = document.getElementById("email");
+      const subjectInput = document.getElementById("subject");
+      const messageInput = document.getElementById("message");
+
+      const nameError = document.getElementById("nameError");
+      const emailError = document.getElementById("emailError");
+      const subjectError = document.getElementById("subjectError");
+      const messageError = document.getElementById("messageError");
+
+      const successAlert = document.getElementById("successAlert");
+      const themeToggle = document.getElementById("themeToggle");
+
+      // State tracking matching React component dP()
+      const touched = {
+        name: false,
+        email: false,
+        subject: false,
+        message: false
+      };
+
+      let successTimeout = null;
+
+      function validateField(field, value) {
+        const val = (value || "").trim();
+        switch (field) {
+          case "name":
+            if (!val) return "Please enter your name.";
+            return "";
+          case "email":
+            if (!val) return "Please enter your email.";
+            if (!emailRegex.test(val)) return "Enter a valid email address.";
+            return "";
+          case "subject":
+            if (!val) return "Please add a subject.";
+            return "";
+          case "message":
+            if (!val) return "Tell us a little more.";
+            if (val.length < 10) return "Message should be at least 10 characters.";
+            return "";
+          default:
+            return "";
+        }
+      }
+
+      function updateFieldUI(input, errorEl, errorMessage, isTouched) {
+        if (isTouched && errorMessage) {
+          input.classList.add("has-error");
+          errorEl.querySelector(".error-text").textContent = errorMessage;
+          errorEl.style.display = "flex";
+        } else {
+          input.classList.remove("has-error");
+          errorEl.style.display = "none";
+        }
+      }
+
+      function handleBlur(field, input, errorEl) {
+        touched[field] = true;
+        const err = validateField(field, input.value);
+        updateFieldUI(input, errorEl, err, true);
+      }
+
+      function handleInput(field, input, errorEl) {
+        if (touched[field]) {
+          const err = validateField(field, input.value);
+          updateFieldUI(input, errorEl, err, true);
+        }
+      }
+
+      nameInput.addEventListener("blur", () => handleBlur("name", nameInput, nameError));
+      emailInput.addEventListener("blur", () => handleBlur("email", emailInput, emailError));
+      subjectInput.addEventListener("blur", () => handleBlur("subject", subjectInput, subjectError));
+      messageInput.addEventListener("blur", () => handleBlur("message", messageInput, messageError));
+
+      nameInput.addEventListener("input", () => handleInput("name", nameInput, nameError));
+      emailInput.addEventListener("input", () => handleInput("email", emailInput, emailError));
+      subjectInput.addEventListener("input", () => handleInput("subject", subjectInput, subjectError));
+      messageInput.addEventListener("input", () => handleInput("message", messageInput, messageError));
+
+      // =========================================================================
+      // GOOGLE SHEETS INTEGRATION
+      // Paste your deployed Google Apps Script Web App URL below:
+      // =========================================================================
+      const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbyy6ecbvDKkUNCVQHzLHRfEhcGWB2NR4mk7Wj0XzJCfRsVytmSxdyt4UzrE0wCIoVk/exec";
+
+      form.addEventListener("submit", async function (e) {
+        e.preventDefault();
+
+        // Mark all as touched on submit
+        touched.name = true;
+        touched.email = true;
+        touched.subject = true;
+        touched.message = true;
+
+        const errName = validateField("name", nameInput.value);
+        const errEmail = validateField("email", emailInput.value);
+        const errSubject = validateField("subject", subjectInput.value);
+        const errMessage = validateField("message", messageInput.value);
+
+        updateFieldUI(nameInput, nameError, errName, true);
+        updateFieldUI(emailInput, emailError, errEmail, true);
+        updateFieldUI(subjectInput, subjectError, errSubject, true);
+        updateFieldUI(messageInput, messageError, errMessage, true);
+
+        const isValid = !errName && !errEmail && !errSubject && !errMessage;
+
+        if (isValid) {
+          const submitBtn = form.querySelector('button[type="submit"]');
+          const originalBtnContent = submitBtn.innerHTML;
+
+          try {
+            // Set loading state
+            submitBtn.disabled = true;
+            submitBtn.style.opacity = "0.7";
+            submitBtn.innerHTML = `
+              <svg class="animate-spin" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:1rem;height:1rem;animation:spin 1s linear infinite;">
+                <circle cx="12" cy="12" r="10" stroke-dasharray="32" stroke-dashoffset="12"></circle>
+              </svg>
+              Sending...
+            `;
+
+            // If Google Sheets URL is configured, POST to Google Apps Script
+            if (GOOGLE_SHEET_URL && GOOGLE_SHEET_URL.trim() !== "") {
+              const formData = new FormData();
+              formData.append("name", nameInput.value.trim());
+              formData.append("email", emailInput.value.trim());
+              formData.append("subject", subjectInput.value.trim());
+              formData.append("message", messageInput.value.trim());
+              formData.append("timestamp", new Date().toISOString());
+
+              await fetch(GOOGLE_SHEET_URL, {
+                method: "POST",
+                body: formData,
+                mode: "no-cors" // Essential for Google Apps Script redirects
+              });
+            } else {
+              // Simulated small network delay if URL not yet configured
+              await new Promise(res => setTimeout(res, 600));
+            }
+
+            // Success state matching React dP()
+            successAlert.style.display = "flex";
+            form.reset();
+
+            touched.name = false;
+            touched.email = false;
+            touched.subject = false;
+            touched.message = false;
+
+            [nameInput, emailInput, subjectInput, messageInput].forEach(inp => {
+              inp.classList.remove("has-error");
+            });
+
+            if (successTimeout) clearTimeout(successTimeout);
+            successTimeout = setTimeout(() => {
+              successAlert.style.display = "none";
+            }, 5000);
+          } catch (err) {
+            console.error("Submission error:", err);
+            alert("Something went wrong while sending. Please try again.");
+          } finally {
+            submitBtn.disabled = false;
+            submitBtn.style.opacity = "1";
+            submitBtn.innerHTML = originalBtnContent;
+          }
+        }
+      });
+
+      // Theme toggle functionality
+      if (themeToggle) {
+        themeToggle.addEventListener("click", () => {
+          const isDark = document.documentElement.classList.toggle("dark");
+          localStorage.setItem("itsa-theme", isDark ? "dark" : "light");
+        });
+      }
+    })();
+  </script>
+</body>
+
+</html>

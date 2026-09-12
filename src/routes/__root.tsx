@@ -10,10 +10,10 @@ import {
 import { type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
-import { IntroSequence } from "@/components/fx/intro";
-import { PageTransition } from "@/components/fx/page-transition";
-import { SiteNav } from "@/components/site/nav";
-import { SiteFooter } from "@/components/site/footer";
+import { IntroSequence } from "@/components/effects/intro";
+import { PageTransition } from "@/components/effects/page-transition";
+import { SiteNav } from "@/components/layout/nav";
+import { SiteFooter } from "@/components/layout/footer";
 import { themeBootScript } from "@/components/theme/theme-toggle";
 
 function NotFoundComponent() {

@@ -3,7 +3,7 @@ import { useMemo, useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "motion/react";
 
-import { Reveal, SplitWords } from "@/components/fx/motion-primitives";
+import { Reveal, SplitWords } from "@/components/effects/motion-primitives";
 import eventsData from "@/data/events.json";
 
 type EventItem = {

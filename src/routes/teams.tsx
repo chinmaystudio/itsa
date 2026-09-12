@@ -6,7 +6,7 @@ import { MemberProfileDialog } from "@/components/team/member-profile-dialog";
 import { HierarchyChart } from "@/components/team/hierarchy-chart";
 import { MemberSearch } from "@/components/team/member-search";
 import { preloadHierarchy3D, scheduleHierarchy3DPreload } from "@/components/team/preload";
-import { Reveal, SplitWords } from "@/components/fx/motion-primitives";
+import { Reveal, SplitWords } from "@/components/effects/motion-primitives";
 import { computeTeamStats } from "@/lib/team";
 import { getTeamData } from "@/api/team";
 

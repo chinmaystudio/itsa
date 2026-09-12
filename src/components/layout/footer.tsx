@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 
-import { Marquee } from "@/components/fx/marquee";
+import { Marquee } from "@/components/effects/marquee";
 import { itsa } from "@/data/itsa";
 
 const columns = [

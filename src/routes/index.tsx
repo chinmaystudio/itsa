@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-import { HeroSequence } from "@/components/fx/hero-sequence";
-import { Reveal, SplitWords } from "@/components/fx/motion-primitives";
+import { HeroSequence } from "@/components/effects/hero-sequence";
+import { Reveal, SplitWords } from "@/components/effects/motion-primitives";
 import { clubs } from "@/data/clubs";
 import { itsa } from "@/data/itsa";
 

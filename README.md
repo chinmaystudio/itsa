@@ -26,12 +26,13 @@ Official website of ITSA (IT Department, PCCoE, Pune), built with TanStack Start
 
 ```
 src/
-├── components/       UI components (site chrome, fx/motion, ui primitives)
+├── components/       UI components (effects/motion, layout chrome, ui primitives)
 ├── data/             Static datasets (teams.json, events, clubs, itsa facts)
 ├── hooks/            Shared React hooks
-├── lib/              Client/server utilities
+├── lib/              Client utilities
 ├── routes/           File-based routes (pages)
-├── server/           Backend: team data service + server functions (API layer)
+├── server/           Backend: team data service + server functions (API layer),
+│                     SSR error-page helpers (error-page.ts, error-capture.ts)
 ├── router.tsx        Router factory
 ├── server.ts         Nitro SSR entry (error wrapper)
 ├── start.ts          Request middleware (CSRF + SSR error page)

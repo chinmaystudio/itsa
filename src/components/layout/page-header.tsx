@@ -1,6 +1,6 @@
 import { motion, useReducedMotion } from "motion/react";
 
-import { SplitWords } from "@/components/fx/motion-primitives";
+import { SplitWords } from "@/components/effects/motion-primitives";
 
 /**
  * Shared editorial masthead. Each page passes its own index number and

@@ -2,8 +2,8 @@ import { Link } from "@tanstack/react-router";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import { Marquee } from "@/components/fx/marquee";
-import { Magnetic, Reveal, SplitWords } from "@/components/fx/motion-primitives";
+import { Marquee } from "@/components/effects/marquee";
+import { Magnetic, Reveal, SplitWords } from "@/components/effects/motion-primitives";
 import { itsa } from "@/data/itsa";
 
 /* ──────────── Animation Timing ──────────── */

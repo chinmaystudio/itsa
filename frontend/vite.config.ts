@@ -6,16 +6,6 @@ import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 import react from "@vitejs/plugin-react";
 import tsConfigPaths from "vite-tsconfig-paths";
 
-/**
- * Plain Vite config for TanStack Start (no third-party config wrapper).
- *
- * Mirrors the previous wrapper's behaviour:
- *  - tanstackStart handles file-based routes + server functions (SSR via Nitro).
- *  - nitro builds the server target (Vercel preset is set via NITRO_PRESET env;
- *    `scripts/build-static.mjs` sets `node-server` for static prerendering).
- *  - `src/server.ts` is the SSR entry that wraps the Nitro server entry.
- *  - `@/*` maps to `src/*`, matching `tsconfig.json` paths.
- */
 export default defineViteConfig(async (env) => {
   const viteConfig: UserConfig = {
     base: process.env["BASE_PATH"] ? `${process.env["BASE_PATH"]}/` : "/",
@@ -23,7 +13,6 @@ export default defineViteConfig(async (env) => {
       tsConfigPaths({ projects: ["./tsconfig.json"] }),
       tailwindcss(),
       tanstackStart({
-        srcDirectory: "frontend/src",
         server: { entry: "server" },
         importProtection: {
           behavior: "error",
@@ -40,7 +29,7 @@ export default defineViteConfig(async (env) => {
     },
     resolve: {
       alias: {
-        "@": fileURLToPath(new NodeURL("./frontend/src", import.meta.url)),
+        "@": fileURLToPath(new NodeURL("./src", import.meta.url)),
       },
       dedupe: ["react", "react-dom", "@tanstack/react-query"],
     },
@@ -50,7 +39,6 @@ export default defineViteConfig(async (env) => {
     },
   };
 
-  // Build the deployable server bundle with Nitro (client assets + server output).
   if (env.command === "build") {
     const { nitro } = await import("nitro/vite");
     viteConfig.plugins!.push(
@@ -58,14 +46,13 @@ export default defineViteConfig(async (env) => {
         handlers: [
           {
             route: "/api/auto-reply",
-            handler: "./backend/api/auto-reply.ts",
+            handler: "../backend/api/auto-reply.ts",
           },
         ],
       }),
     );
   }
 
-  // Inject VITE_* env vars, matching the previous wrapper's envDefine behaviour.
   const loadedEnv = loadEnv(env.mode, process.cwd(), "VITE_");
   const envDefine: Record<string, string> = {};
   for (const [key, value] of Object.entries(loadedEnv)) {

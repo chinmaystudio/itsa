@@ -13,6 +13,9 @@
     href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=IBM+Plex+Mono:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap"
     rel="stylesheet" />
 
+  <!-- Supabase JS Client (v2) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <script>
     (function () {
       try {
@@ -506,6 +509,28 @@
       flex-shrink: 0;
     }
 
+    /* Submission Error Banner */
+    .error-alert {
+      display: flex;
+      align-items: center;
+      gap: 0.625rem;
+      border: 1px solid var(--destructive);
+      background: color-mix(in oklch, var(--destructive) 14%, var(--card));
+      padding: 0.875rem 1rem;
+      font-family: var(--font-mono);
+      font-size: 0.8125rem;
+      color: var(--foreground);
+      margin-top: 1.25rem;
+      animation: alertEnter 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .error-alert svg {
+      width: 1.125rem;
+      height: 1.125rem;
+      stroke: var(--destructive);
+      flex-shrink: 0;
+    }
+
     @keyframes alertEnter {
       from {
         opacity: 0;
@@ -780,6 +805,17 @@
               </svg>
               <span>Thanks! Your message has been recorded — we'll be in touch.</span>
             </div>
+
+            <!-- Error Alert -->
+            <div id="errorAlert" class="error-alert" style="display: none;">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+              </svg>
+              <span id="errorAlertText">Failed to send message. Please try again.</span>
+            </div>
           </form>
         </div>
 
@@ -868,6 +904,8 @@
       const messageError = document.getElementById("messageError");
 
       const successAlert = document.getElementById("successAlert");
+      const errorAlert = document.getElementById("errorAlert");
+      const errorAlertText = document.getElementById("errorAlertText");
       const themeToggle = document.getElementById("themeToggle");
 
       // State tracking matching React component dP()
@@ -879,6 +917,7 @@
       };
 
       let successTimeout = null;
+      let errorTimeout = null;
 
       function validateField(field, value) {
         const val = (value || "").trim();
@@ -937,10 +976,24 @@
       messageInput.addEventListener("input", () => handleInput("message", messageInput, messageError));
 
       // =========================================================================
-      // GOOGLE SHEETS INTEGRATION
-      // Paste your deployed Google Apps Script Web App URL below:
+      // SUPABASE BACKEND CONFIGURATION
       // =========================================================================
-      const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbyy6ecbvDKkUNCVQHzLHRfEhcGWB2NR4mk7Wj0XzJCfRsVytmSxdyt4UzrE0wCIoVk/exec";
+      const SUPABASE_URL = "https://ybosfxrccrtrkyqbvifd.supabase.co";
+      const SUPABASE_ANON_KEY = "sb_publishable_kD6qwbXdQeT7HMd4OjJtng_URoBXxYE";
+      const SUPABASE_TABLE = "contact_submissions";
+
+      // Initialize Supabase Client if keys are configured
+      let supabaseClient = null;
+      const isConfigured =
+        typeof window.supabase !== "undefined" &&
+        SUPABASE_URL &&
+        !SUPABASE_URL.includes("YOUR_SUPABASE") &&
+        SUPABASE_ANON_KEY &&
+        !SUPABASE_ANON_KEY.includes("YOUR_SUPABASE");
+
+      if (isConfigured) {
+        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      }
 
       form.addEventListener("submit", async function (e) {
         e.preventDefault();
@@ -967,6 +1020,17 @@
           const submitBtn = form.querySelector('button[type="submit"]');
           const originalBtnContent = submitBtn.innerHTML;
 
+          // Clear any previous alerts
+          if (errorAlert) errorAlert.style.display = "none";
+          if (successAlert) successAlert.style.display = "none";
+
+          const payload = {
+            name: nameInput.value.trim(),
+            email: emailInput.value.trim(),
+            subject: subjectInput.value.trim(),
+            message: messageInput.value.trim(),
+          };
+
           try {
             // Set loading state
             submitBtn.disabled = true;
@@ -978,26 +1042,39 @@
               Sending...
             `;
 
-            // If Google Sheets URL is configured, POST to Google Apps Script
-            if (GOOGLE_SHEET_URL && GOOGLE_SHEET_URL.trim() !== "") {
-              const formData = new FormData();
-              formData.append("name", nameInput.value.trim());
-              formData.append("email", emailInput.value.trim());
-              formData.append("subject", subjectInput.value.trim());
-              formData.append("message", messageInput.value.trim());
-              formData.append("timestamp", new Date().toISOString());
+            if (supabaseClient) {
+              // 1. Insert into Supabase database table
+              const { data, error } = await supabaseClient
+                .from(SUPABASE_TABLE)
+                .insert([payload]);
 
-              await fetch(GOOGLE_SHEET_URL, {
-                method: "POST",
-                body: formData,
-                mode: "no-cors" // Essential for Google Apps Script redirects
-              });
+              if (error) {
+                throw new Error(error.message || "Failed to record submission in Supabase.");
+              }
             } else {
-              // Simulated small network delay if URL not yet configured
+              console.warn(
+                "Supabase is not configured yet with valid keys. Please set SUPABASE_URL and SUPABASE_ANON_KEY."
+              );
               await new Promise(res => setTimeout(res, 600));
             }
 
-            // Success state matching React dP()
+            // 2. Dispatch Brevo automatic reply email in background
+            fetch("/api/auto-reply", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(payload),
+            })
+              .then(res => res.json())
+              .then(data => {
+                if (data.success) {
+                  console.log("[Brevo] Auto-reply dispatched successfully:", data.messageId);
+                } else {
+                  console.warn("[Brevo] Auto-reply status:", data.error);
+                }
+              })
+              .catch(err => console.warn("[Brevo] Auto-reply request error:", err));
+
+            // Success state
             successAlert.style.display = "flex";
             form.reset();
 
@@ -1016,7 +1093,16 @@
             }, 5000);
           } catch (err) {
             console.error("Submission error:", err);
-            alert("Something went wrong while sending. Please try again.");
+            if (errorAlert) {
+              errorAlertText.textContent =
+                err.message || "Failed to submit message to Supabase. Please check keys or database connection.";
+              errorAlert.style.display = "flex";
+
+              if (errorTimeout) clearTimeout(errorTimeout);
+              errorTimeout = setTimeout(() => {
+                errorAlert.style.display = "none";
+              }, 7000);
+            }
           } finally {
             submitBtn.disabled = false;
             submitBtn.style.opacity = "1";

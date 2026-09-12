@@ -52,7 +52,16 @@ export default defineViteConfig(async (env) => {
   // Build the deployable server bundle with Nitro (client assets + server output).
   if (env.command === "build") {
     const { nitro } = await import("nitro/vite");
-    viteConfig.plugins!.push(nitro());
+    viteConfig.plugins!.push(
+      nitro({
+        handlers: [
+          {
+            route: "/api/auto-reply",
+            handler: "./server/api/auto-reply.ts",
+          },
+        ],
+      }),
+    );
   }
 
   // Inject VITE_* env vars, matching the previous wrapper's envDefine behaviour.

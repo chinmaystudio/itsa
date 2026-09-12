@@ -7,10 +7,12 @@ export interface ContactSubmission {
   created_at?: string;
 }
 
+const backendUrl = (import.meta.env.VITE_BACKEND_URL || "").replace(/\/$/, "");
+
 export async function submitContactForm(
   submission: Omit<ContactSubmission, "id" | "created_at">,
 ): Promise<void> {
-  const response = await fetch("/api/contact", {
+  const response = await fetch(`${backendUrl}/api/contact`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(submission),

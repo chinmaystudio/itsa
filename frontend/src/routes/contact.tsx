@@ -22,6 +22,8 @@ const schema = z.object({
 
 type FormValues = z.infer<typeof schema>;
 
+const backendUrl = (import.meta.env.VITE_BACKEND_URL || "").replace(/\/$/, "");
+
 export const Route = createFileRoute("/contact")({
   component: ContactPage,
 });
@@ -51,7 +53,7 @@ function ContactPage() {
     try {
       await submitContactForm(data);
 
-      await fetch("/api/auto-reply", {
+      await fetch(`${backendUrl}/api/auto-reply`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

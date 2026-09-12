@@ -134,6 +134,8 @@ export async function sendBrevoAutoReply(payload: AutoReplyPayload): Promise<Aut
 
     // 2. Otherwise (e.g. starts with xsmtpsib-), use SMTP relay via Nodemailer
     const smtpLogin = process.env["BREVO_SMTP_LOGIN"] || senderEmail;
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore — nodemailer is an optional server-side dep; install if needed
     const nodemailer = await import("nodemailer");
 
     const transporter = nodemailer.createTransport({

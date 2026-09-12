@@ -1,10 +1,3 @@
-import { StrictMode } from 'react';
-import { createRoot } from 'react-dom/client';
-import App from './App.tsx';
-import './index.css';
-
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <App />
-  </StrictMode>
-);
+// NOTE: TanStack Start bootstraps the app through src/start.ts, not main.tsx.
+// This file came from a merged branch and is not the entry point for this project.
+export {};

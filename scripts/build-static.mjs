@@ -2,7 +2,7 @@ import { execSync, spawn } from "node:child_process";
 import fs from "node:fs/promises";
 import path from "node:path";
 
-const routes = ["/", "/teams", "/events"];
+const routes = ["/", "/teams", "/events", "/achievements", "/contact"];
 
 async function run() {
   const basePath =
@@ -15,13 +15,17 @@ async function run() {
   process.env.NITRO_PRESET = "node-server";
 
   console.log(`=== Step 1: Building app with Nitro (BASE_PATH: "${basePath}") ===`);
-  execSync("npx vite build", {
+  execSync("npm --prefix frontend run build", {
     stdio: "inherit",
     env: { ...process.env, NITRO_PRESET: "node-server", BASE_PATH: basePath },
   });
 
   console.log("\n=== Step 2: Prerendering routes to static HTML ===");
-  const server = spawn("node", [".output/server/index.mjs"], {
+  const serverPath = (await fs.stat("frontend/.output/server/index.mjs").catch(() => null))
+    ? "frontend/.output/server/index.mjs"
+    : ".output/server/index.mjs";
+
+  const server = spawn("node", [serverPath], {
     env: { ...process.env, PORT: "3456" },
     stdio: "inherit",
   });
@@ -45,7 +49,9 @@ async function run() {
     throw new Error("Server failed to start on port 3456");
   }
 
-  const publicDir = path.resolve(".output/public");
+  const publicDir = (await fs.stat("frontend/.output/public").catch(() => null))
+    ? path.resolve("frontend/.output/public")
+    : path.resolve(".output/public");
 
   for (const route of routes) {
     const fetchPath = `${basePath}${route}`.replace(/\/+/g, "/");
@@ -65,7 +71,7 @@ async function run() {
   // Create .nojekyll so GitHub Pages doesn't ignore assets or run Jekyll
   await fs.writeFile(path.join(publicDir, ".nojekyll"), "", "utf-8");
 
-  console.log("\n=== Step 3: Finished! Static site generated in .output/public ===");
+  console.log(`\n=== Step 3: Finished! Static site generated in ${publicDir} ===`);
   if (process.platform === "win32") {
     try {
       execSync(`taskkill /pid ${server.pid} /T /F`, { stdio: "ignore" });

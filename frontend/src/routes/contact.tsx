@@ -11,7 +11,6 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { submitContactForm } from "@/lib/supabase";
-import { sendBrevoAutoReply } from "@/server/email";
 import { itsa } from "@/data/itsa";
 
 const schema = z.object({
@@ -51,12 +50,17 @@ function ContactPage() {
   const onSubmit = async (data: FormValues) => {
     try {
       await submitContactForm(data);
-      await sendBrevoAutoReply({
-        name: data.name,
-        email: data.email,
-        subject: data.subject,
-        message: data.message,
-      });
+
+      await fetch("/api/auto-reply", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: data.name,
+          email: data.email,
+          subject: data.subject,
+          message: data.message,
+        }),
+      }).catch((err) => console.warn("Auto-reply API notice:", err));
 
       setFormResult({
         type: "success",

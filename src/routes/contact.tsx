@@ -36,7 +36,7 @@ function ContactPage() {
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting, isSuccess },
+    formState: { errors, isSubmitting },
     reset,
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
@@ -147,89 +147,80 @@ function ContactPage() {
           </Button>
         </div>
       ) : (
-        <Form
-          {...handleSubmit(onSubmit)}
+        <form
+          onSubmit={handleSubmit(onSubmit)}
           className="space-y-8"
-          resetOnSubmit
         >
           <div className="grid gap-4 sm:grid-cols-2">
-            <FormField>
-              <FormItem>
-                <FormLabel>Name</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="Enter your name"
-                    {...register("name")}
-                    className={errors.name ? "border-destructive" : undefined}
-                  />
-                  {errors.name && (
-                    <FormMessage>{errors.name.message}</FormMessage>
-                  )}
-                </FormControl>
-                <FormDescription>
-                  Please enter your full name
-                </FormDescription>
-              </FormItem>
-            </FormField>
-
-            <FormField>
-              <FormItem>
-                <FormLabel>Email</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="Enter your email address"
-                    type="email"
-                    {...register("email")}
-                    className={errors.email ? "border-destructive" : undefined}
-                  />
-                  {errors.email && (
-                    <FormMessage>{errors.email.message}</FormMessage>
-                  )}
-                </FormControl>
-                <FormDescription>
-                  We'll use this to respond to your inquiry
-                </FormDescription>
-              </FormItem>
-            </FormField>
-          </div>
-
-          <FormField>
-            <FormItem>
-              <FormLabel>Subject</FormLabel>
+            <div className="space-y-2">
+              <FormLabel>Name</FormLabel>
               <FormControl>
                 <Input
-                  placeholder="What's this regarding?"
-                  {...register("subject")}
-                  className={errors.subject ? "border-destructive" : undefined}
+                  placeholder="Enter your name"
+                  {...register("name")}
+                  className={errors.name ? "border-destructive" : undefined}
                 />
-                {errors.subject && (
-                  <FormMessage>{errors.subject.message}</FormMessage>
-                )}
               </FormControl>
+              {errors.name && (
+                <FormMessage>{errors.name.message}</FormMessage>
+              )}
               <FormDescription>
-                Briefly describe the purpose of your message
+                Please enter your full name
               </FormDescription>
-            </FormItem>
-          </FormField>
+            </div>
 
-          <FormField>
-            <FormItem>
-              <FormLabel>Message</FormLabel>
+            <div className="space-y-2">
+              <FormLabel>Email</FormLabel>
               <FormControl>
-                <Textarea
-                  placeholder="Type your message here..."
-                  {...register("message")}
-                  className={errors.message ? "border-destructive" : undefined}
+                <Input
+                  placeholder="Enter your email address"
+                  type="email"
+                  {...register("email")}
+                  className={errors.email ? "border-destructive" : undefined}
                 />
-                {errors.message && (
-                  <FormMessage>{errors.message.message}</FormMessage>
-                )}
               </FormControl>
+              {errors.email && (
+                <FormMessage>{errors.email.message}</FormMessage>
+              )}
               <FormDescription>
-                Please provide as much detail as possible
+                We'll use this to respond to your inquiry
               </FormDescription>
-            </FormItem>
-          </FormField>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <FormLabel>Subject</FormLabel>
+            <FormControl>
+              <Input
+                placeholder="What's this regarding?"
+                {...register("subject")}
+                className={errors.subject ? "border-destructive" : undefined}
+              />
+            </FormControl>
+            {errors.subject && (
+              <FormMessage>{errors.subject.message}</FormMessage>
+            )}
+            <FormDescription>
+              Briefly describe the purpose of your message
+            </FormDescription>
+          </div>
+
+          <div className="space-y-2">
+            <FormLabel>Message</FormLabel>
+            <FormControl>
+              <Textarea
+                placeholder="Type your message here..."
+                {...register("message")}
+                className={errors.message ? "border-destructive" : undefined}
+              />
+            </FormControl>
+            {errors.message && (
+              <FormMessage>{errors.message.message}</FormMessage>
+            )}
+            <FormDescription>
+              Please provide as much detail as possible
+            </FormDescription>
+          </div>
 
           <Button
             type="submit"
@@ -238,7 +229,7 @@ function ContactPage() {
           >
             {isSubmitting ? "Sending..." : "Send Message"}
           </Button>
-        </Form>
+        </form>
       )}
 
       {/* Alternative contact info */}

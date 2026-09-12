@@ -1,5 +1,5 @@
 import { defineEventHandler, readBody, getMethod, setResponseHeaders } from "h3";
-import { sendBrevoAutoReply } from "../../src/server/email";
+import { sendBrevoAutoReply } from "../../frontend/src/server/email";
 
 export default defineEventHandler(async (event) => {
   setResponseHeaders(event, {
@@ -19,11 +19,16 @@ export default defineEventHandler(async (event) => {
   }
 
   try {
-    const body = await readBody(event);
-    if (!body || !body.email || !body.name) {
+    const body = (await readBody(event)) as Record<string, string> | null;
+    if (!body || !body["email"] || !body["name"]) {
       return { success: false, error: "Name and email are required" };
     }
-    return await sendBrevoAutoReply(body);
+    return await sendBrevoAutoReply({
+      name: body["name"],
+      email: body["email"],
+      subject: body["subject"],
+      message: body["message"],
+    });
   } catch (err: unknown) {
     return {
       success: false,

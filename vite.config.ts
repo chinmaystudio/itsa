@@ -23,6 +23,7 @@ export default defineViteConfig(async (env) => {
       tsConfigPaths({ projects: ["./tsconfig.json"] }),
       tailwindcss(),
       tanstackStart({
+        srcDirectory: "frontend/src",
         server: { entry: "server" },
         importProtection: {
           behavior: "error",
@@ -39,7 +40,7 @@ export default defineViteConfig(async (env) => {
     },
     resolve: {
       alias: {
-        "@": fileURLToPath(new NodeURL("./src", import.meta.url)),
+        "@": fileURLToPath(new NodeURL("./frontend/src", import.meta.url)),
       },
       dedupe: ["react", "react-dom", "@tanstack/react-query"],
     },
@@ -57,7 +58,7 @@ export default defineViteConfig(async (env) => {
         handlers: [
           {
             route: "/api/auto-reply",
-            handler: "./server/api/auto-reply.ts",
+            handler: "./backend/api/auto-reply.ts",
           },
         ],
       }),

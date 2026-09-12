@@ -11,6 +11,9 @@
     "build": "npm --prefix frontend run build",
     "build:dev": "npm --prefix frontend run build:dev",
     "preview": "npm --prefix frontend run preview",
-    "typecheck": "npm --prefix frontend run typecheck && npm --prefix backend run typecheck"
+    "typecheck": "tsc --noEmit -p frontend/tsconfig.json && tsc --noEmit -p backend/tsconfig.json"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.3"
   }
 }

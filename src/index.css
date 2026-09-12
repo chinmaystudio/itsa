@@ -1,0 +1,171 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --radius: 0rem;
+  --background: oklch(95.8% 0.008 95);
+  --foreground: oklch(18% 0.012 80);
+  --surface: oklch(92.5% 0.01 95);
+  --surface-2: oklch(89.2% 0.012 95);
+  --card: oklch(97.5% 0.006 95);
+  --card-foreground: oklch(18% 0.012 80);
+  --popover: oklch(97.5% 0.006 95);
+  --popover-foreground: oklch(18% 0.012 80);
+  --primary: oklch(47% 0.243 268);
+  --primary-foreground: oklch(98% 0.005 95);
+  --secondary: oklch(90% 0.012 95);
+  --secondary-foreground: oklch(18% 0.012 80);
+  --muted: oklch(91.5% 0.01 95);
+  --muted-foreground: oklch(46% 0.014 85);
+  --accent: oklch(88% 0.21 122);
+  --accent-foreground: oklch(20% 0.06 122);
+  --destructive: oklch(55% 0.22 27);
+  --destructive-foreground: oklch(98% 0.005 95);
+  --border: oklch(18% 0.012 80 / 0.16);
+  --input: oklch(18% 0.012 80 / 0.22);
+  --ring: oklch(47% 0.243 268);
+  --ember: oklch(47% 0.243 268);
+  --acid: oklch(88% 0.21 122);
+  color-scheme: light;
+}
+
+html.dark {
+  --background: oklch(15.5% 0.009 275);
+  --foreground: oklch(94.5% 0.008 95);
+  --surface: oklch(20.3% 0.012 275);
+  --surface-2: oklch(24.8% 0.014 275);
+  --card: oklch(20.3% 0.012 275);
+  --card-foreground: oklch(94.5% 0.008 95);
+  --popover: oklch(20.3% 0.012 275);
+  --popover-foreground: oklch(94.5% 0.008 95);
+  --primary: oklch(70% 0.19 268);
+  --primary-foreground: oklch(16% 0.03 268);
+  --secondary: oklch(24.8% 0.014 275);
+  --secondary-foreground: oklch(94.5% 0.008 95);
+  --muted: oklch(24.8% 0.014 275);
+  --muted-foreground: oklch(72% 0.012 95);
+  --accent: oklch(88% 0.21 122);
+  --accent-foreground: oklch(18% 0.06 122);
+  --border: oklch(94.5% 0.008 95 / 0.18);
+  --input: oklch(94.5% 0.008 95 / 0.24);
+  --ring: oklch(70% 0.19 268);
+  --ember: oklch(70% 0.19 268);
+  --acid: oklch(88% 0.21 122);
+  color-scheme: dark;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: 'Manrope', ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  transition: background-color 0.4s, color 0.4s;
+  overflow-x: hidden;
+}
+
+::selection {
+  background: var(--acid);
+  color: var(--accent-foreground);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Bricolage Grotesque', ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: -0.035em;
+}
+
+/* Specific display typography from ITSA reference site */
+.display-xl {
+  font-family: 'Bricolage Grotesque', ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: -0.045em;
+  font-size: clamp(2.75rem, 9vw, 8.5rem);
+  font-weight: 800;
+  line-height: 0.88;
+}
+
+.display-lg {
+  font-family: 'Bricolage Grotesque', ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: -0.04em;
+  font-size: clamp(2.2rem, 6.5vw, 5.5rem);
+  font-weight: 800;
+  line-height: 0.9;
+}
+
+.display-md {
+  font-family: 'Bricolage Grotesque', ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: -0.035em;
+  font-size: clamp(1.75rem, 4vw, 3.25rem);
+  font-weight: 700;
+  line-height: 0.95;
+}
+
+.label-mono {
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+  font-size: 0.68rem;
+}
+
+.text-outline {
+  color: transparent;
+  -webkit-text-stroke: 1.5px var(--foreground);
+}
+
+/* Card pattern with signature sharp offset shadow */
+.ink-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s;
+}
+
+.offset-shadow-primary {
+  box-shadow: 6px 6px 0 0 var(--primary);
+}
+
+.hover\:offset-shadow-primary:hover {
+  box-shadow: 8px 8px 0 0 var(--primary);
+}
+
+/* Subtle background blueprint grid */
+.grid-paper {
+  background-image: linear-gradient(to right, var(--border) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--border) 1px, transparent 1px);
+  background-size: 88px 88px;
+  -webkit-mask-image: radial-gradient(90% 70% at 50% 30%, #000, transparent 85%);
+  mask-image: radial-gradient(90% 70% at 50% 30%, #000, transparent 85%);
+}
+
+/* Film grain */
+.grain {
+  position: relative;
+}
+
+.grain:after {
+  content: "";
+  pointer-events: none;
+  opacity: 0.14;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.3'/%3E%3C/svg%3E");
+  position: absolute;
+  inset: 0;
+}
+
+/* Marquee infinite scroll */
+@keyframes marquee-scroll {
+  0% {
+    transform: translate(0);
+  }
+  100% {
+    transform: translate(-50%);
+  }
+}
+
+.marquee-track {
+  width: max-content;
+  animation: 26s linear infinite marquee-scroll;
+  display: flex;
+}
+
+.marquee-track:hover {
+  animation-play-state: paused;
+}

@@ -9,6 +9,7 @@ const links = [
   { to: "/teams", label: "Team" },
   { to: "/events", label: "Events" },
   { to: "/achievements", label: "Achievements" },
+  { to: "/contact", label: "Contact" },
 ] as const;
 
 export function SiteNav() {

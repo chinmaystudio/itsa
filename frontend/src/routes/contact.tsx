@@ -3,21 +3,16 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Mail, Phone, MapPin, Send, CheckCircle2, AlertCircle, Clock } from "lucide-react";
+import { motion } from "motion/react";
 
 import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormControl,
-  FormDescription,
-  FormMessage,
-} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { FormLabel, FormControl, FormDescription, FormMessage } from "@/components/ui/form";
 import { submitContactForm } from "@/lib/supabase";
 import { sendBrevoAutoReply } from "@/server/email";
+import { itsa } from "@/data/itsa";
 
 const schema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -55,10 +50,7 @@ function ContactPage() {
 
   const onSubmit = async (data: FormValues) => {
     try {
-      // Submit to Supabase
       await submitContactForm(data);
-
-      // Send auto-reply email
       await sendBrevoAutoReply({
         name: data.name,
         email: data.email,
@@ -68,196 +60,239 @@ function ContactPage() {
 
       setFormResult({
         type: "success",
-        message: "Your message has been sent successfully! We'll get back to you soon.",
+        message: "Your message has been sent successfully! We'll get back to you within 24 hours.",
       });
       reset();
     } catch (error) {
       console.error("Failed to submit contact form:", error);
       setFormResult({
         type: "error",
-        message:
-          (error as Error)?.message ||
-          "Failed to send message. Please try again later.",
+        message: (error as Error)?.message || "Failed to send message. Please try again later.",
       });
     }
   };
 
+  const contactChannels = [
+    {
+      icon: Mail,
+      title: "Email Us",
+      value: itsa.contact.email,
+      href: `mailto:${itsa.contact.email}`,
+      subtitle: "Official Student Association Inbox",
+    },
+    {
+      icon: Phone,
+      title: "Call Us",
+      value: itsa.contact.phone,
+      href: `tel:${itsa.contact.phone.replace(/[^0-9+]/g, "")}`,
+      subtitle: "President & Faculty Co-ordinators",
+    },
+    {
+      icon: MapPin,
+      title: "Visit Campus",
+      value: itsa.contact.address,
+      href: "https://maps.google.com/?q=PCCoE+Pune",
+      subtitle: "Information Technology Department",
+    },
+  ];
+
   return (
     <div className="mx-auto max-w-[1600px] px-5 py-12 sm:px-8">
-      <header className="mb-12">
-        <h1 className="display-md mb-6">Contact Us</h1>
-        <p className="text-lg text-muted-foreground">
-          Have questions, feedback, or want to collaborate? We'd love to hear from you!
+      {/* Masthead */}
+      <header className="mb-16 border-b border-border pb-12">
+        <div className="flex items-center gap-3">
+          <span className="label-mono bg-primary px-2 py-0.5 text-xs text-primary-foreground">
+            05 // CONTACT
+          </span>
+          <span className="label-mono text-muted-foreground">GET IN TOUCH</span>
+        </div>
+        <h1 className="display-lg mt-4 max-w-4xl tracking-tight">
+          CONNECT WITH THE <span className="text-primary">ITSA TEAM</span>
+        </h1>
+        <p className="mt-6 max-w-2xl text-lg text-muted-foreground">
+          Have questions about upcoming events, hackathons, team memberships, or collaborations?
+          Send us a message or reach out via our official communication channels.
         </p>
       </header>
 
-      {formResult ? (
-        <div className="mb-8 p-6 rounded-lg text-center">
-          {formResult.type === "success" ? (
-            <>
-              <div className="mb-4">
-                {/* Success icon */}
-                <svg
-                  className="h-8 w-8 mx-auto text-success"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
+      {/* Main Grid: Channels & Form */}
+      <div className="grid gap-12 lg:grid-cols-[1fr_1.4fr]">
+        {/* Left Column: Direct Contact Info Cards */}
+        <div className="space-y-6">
+          <h2 className="display-md text-2xl font-bold">Contact Channels</h2>
+          <p className="text-sm text-muted-foreground">
+            Our student body leads and faculty advisors are available during working hours at PCCoE Pune campus.
+          </p>
+
+          <div className="space-y-4">
+            {contactChannels.map((channel, i) => {
+              const Icon = channel.icon;
+              return (
+                <motion.a
+                  key={channel.title}
+                  href={channel.href}
+                  target={channel.href.startsWith("http") ? "_blank" : undefined}
+                  rel={channel.href.startsWith("http") ? "noopener noreferrer" : undefined}
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.1, duration: 0.4 }}
+                  className="ink-card group block border border-border bg-surface p-6 transition-all duration-300 hover:border-primary hover:shadow-[4px_4px_0px_0px_var(--primary)]"
                 >
-                  <path
-                    d="M9 12l2 2 4-4"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
+                  <div className="flex items-start gap-4">
+                    <div className="flex size-12 shrink-0 items-center justify-center border border-border bg-background group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                      <Icon className="size-5" />
+                    </div>
+                    <div className="space-y-1">
+                      <p className="label-mono text-[10px] uppercase text-muted-foreground">
+                        {channel.subtitle}
+                      </p>
+                      <h3 className="font-display text-xl font-bold">{channel.title}</h3>
+                      <p className="font-mono text-sm font-semibold text-primary group-hover:underline">
+                        {channel.value}
+                      </p>
+                    </div>
+                  </div>
+                </motion.a>
+              );
+            })}
+          </div>
+
+          {/* Department Operating Info */}
+          <div className="ink-card border border-border bg-background p-6">
+            <div className="flex items-center gap-3">
+              <Clock className="size-5 text-primary" />
+              <h3 className="font-display text-lg font-bold">Department Office Hours</h3>
+            </div>
+            <div className="mt-4 space-y-2 font-mono text-xs text-muted-foreground">
+              <div className="flex justify-between border-b border-border pb-1">
+                <span>Monday - Friday</span>
+                <span className="font-bold text-foreground">9:00 AM - 5:00 PM IST</span>
               </div>
-              <h3 className="mb-3">Message Sent Successfully!</h3>
-              <p>{formResult.message}</p>
-            </>
+              <div className="flex justify-between border-b border-border pb-1">
+                <span>Saturday</span>
+                <span className="font-bold text-foreground">9:00 AM - 1:00 PM IST</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Sunday</span>
+                <span className="text-muted-foreground">Closed</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Right Column: Contact Form */}
+        <div className="ink-card border border-border bg-surface p-8 sm:p-10 shadow-[6px_6px_0px_0px_var(--border)]">
+          <div className="mb-8 border-b border-border pb-6">
+            <h2 className="display-md text-3xl font-extrabold">Send a Message</h2>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Fill out the form below. An auto-confirmation email will be dispatched immediately.
+            </p>
+          </div>
+
+          {formResult ? (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.98 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className={`p-8 text-center border ${
+                formResult.type === "success"
+                  ? "border-primary bg-primary/10"
+                  : "border-destructive bg-destructive/10"
+              }`}
+            >
+              <div className="mb-4 flex justify-center">
+                {formResult.type === "success" ? (
+                  <CheckCircle2 className="size-12 text-primary" />
+                ) : (
+                  <AlertCircle className="size-12 text-destructive" />
+                )}
+              </div>
+              <h3 className="font-display text-2xl font-bold">
+                {formResult.type === "success" ? "Message Sent Successfully!" : "Submission Failed"}
+              </h3>
+              <p className="mt-3 text-sm text-muted-foreground">{formResult.message}</p>
+              <Button
+                variant="outline"
+                onClick={() => setFormResult(null)}
+                className="mt-6 font-mono text-xs uppercase tracking-wider"
+              >
+                Send Another Message
+              </Button>
+            </motion.div>
           ) : (
-            <>
-              <div className="mb-4">
-                {/* Error icon */}
-                <svg
-                  className="h-8 w-8 mx-auto text-destructive"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M12 8V12M12 16V12M12 10C13.1046 10 14 10.8954 14 12C14 13.1046 13.1046 14 12 14C10.8954 14 10 13.1046 10 12C10 10.8954 10.8954 10 12 10Z"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+              <div className="grid gap-6 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <FormLabel className="label-mono text-xs uppercase">Your Name</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="e.g. Rahul Sharma"
+                      {...register("name")}
+                      className={`font-mono text-sm rounded-none ${errors.name ? "border-destructive" : ""}`}
+                    />
+                  </FormControl>
+                  {errors.name && <FormMessage>{errors.name.message}</FormMessage>}
+                  <FormDescription className="text-[11px]">Full name as registered</FormDescription>
+                </div>
+
+                <div className="space-y-2">
+                  <FormLabel className="label-mono text-xs uppercase">Email Address</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="rahul@example.com"
+                      type="email"
+                      {...register("email")}
+                      className={`font-mono text-sm rounded-none ${errors.email ? "border-destructive" : ""}`}
+                    />
+                  </FormControl>
+                  {errors.email && <FormMessage>{errors.email.message}</FormMessage>}
+                  <FormDescription className="text-[11px]">We'll send auto-reply to this email</FormDescription>
+                </div>
               </div>
-              <h3 className="mb-3">Oops! Something went wrong</h3>
-              <p>{formResult.message}</p>
-            </>
+
+              <div className="space-y-2">
+                <FormLabel className="label-mono text-xs uppercase">Subject</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="e.g. Inquiry regarding Praxis Hackathon 2026"
+                    {...register("subject")}
+                    className={`font-mono text-sm rounded-none ${errors.subject ? "border-destructive" : ""}`}
+                  />
+                </FormControl>
+                {errors.subject && <FormMessage>{errors.subject.message}</FormMessage>}
+                <FormDescription className="text-[11px]">Brief topic of your inquiry</FormDescription>
+              </div>
+
+              <div className="space-y-2">
+                <FormLabel className="label-mono text-xs uppercase">Message</FormLabel>
+                <FormControl>
+                  <Textarea
+                    placeholder="Describe your inquiry, proposal, or feedback in detail..."
+                    rows={5}
+                    {...register("message")}
+                    className={`font-mono text-sm rounded-none ${errors.message ? "border-destructive" : ""}`}
+                  />
+                </FormControl>
+                {errors.message && <FormMessage>{errors.message.message}</FormMessage>}
+                <FormDescription className="text-[11px]">Minimum 10 characters required</FormDescription>
+              </div>
+
+              <Button
+                type="submit"
+                className="w-full font-mono text-sm uppercase tracking-widest py-6 gap-2"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? (
+                  "Sending Message..."
+                ) : (
+                  <>
+                    <Send className="size-4" /> Send Inquiry
+                  </>
+                )}
+              </Button>
+            </form>
           )}
-          <Button
-            variant="outline"
-            onClick={() => setFormResult(null)}
-            className="mt-4"
-          >
-            Close
-          </Button>
         </div>
-      ) : (
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className="space-y-8"
-        >
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-2">
-              <FormLabel>Name</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="Enter your name"
-                  {...register("name")}
-                  className={errors.name ? "border-destructive" : undefined}
-                />
-              </FormControl>
-              {errors.name && (
-                <FormMessage>{errors.name.message}</FormMessage>
-              )}
-              <FormDescription>
-                Please enter your full name
-              </FormDescription>
-            </div>
-
-            <div className="space-y-2">
-              <FormLabel>Email</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="Enter your email address"
-                  type="email"
-                  {...register("email")}
-                  className={errors.email ? "border-destructive" : undefined}
-                />
-              </FormControl>
-              {errors.email && (
-                <FormMessage>{errors.email.message}</FormMessage>
-              )}
-              <FormDescription>
-                We'll use this to respond to your inquiry
-              </FormDescription>
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <FormLabel>Subject</FormLabel>
-            <FormControl>
-              <Input
-                placeholder="What's this regarding?"
-                {...register("subject")}
-                className={errors.subject ? "border-destructive" : undefined}
-              />
-            </FormControl>
-            {errors.subject && (
-              <FormMessage>{errors.subject.message}</FormMessage>
-            )}
-            <FormDescription>
-              Briefly describe the purpose of your message
-            </FormDescription>
-          </div>
-
-          <div className="space-y-2">
-            <FormLabel>Message</FormLabel>
-            <FormControl>
-              <Textarea
-                placeholder="Type your message here..."
-                {...register("message")}
-                className={errors.message ? "border-destructive" : undefined}
-              />
-            </FormControl>
-            {errors.message && (
-              <FormMessage>{errors.message.message}</FormMessage>
-            )}
-            <FormDescription>
-              Please provide as much detail as possible
-            </FormDescription>
-          </div>
-
-          <Button
-            type="submit"
-            className="w-full"
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? "Sending..." : "Send Message"}
-          </Button>
-        </form>
-      )}
-
-      {/* Alternative contact info */}
-      <section className="mt-16 border-t border-foreground/20 pt-12">
-        <h2 className="mb-6">Or reach us directly</h2>
-        <div className="grid gap-6 md:grid-cols-3 text-center">
-          <div>
-            <h3 className="mb-3">Email</h3>
-            <p className="text-muted-foreground">
-              <a href="mailto:nirjar.patil25@pccoepune.org">
-                nirjar.patil25@pccoepune.org
-              </a>
-            </p>
-          </div>
-          <div>
-            <h3 className="mb-3">Phone</h3>
-            <p className="text-muted-foreground">
-              <a href="tel:+919730726966">+91 9730726966</a>
-            </p>
-          </div>
-          <div>
-            <h3 className="mb-3">Office</h3>
-            <p className="text-muted-foreground">
-              Information Technology Department, PCCoE, Pune
-            </p>
-          </div>
-        </div>
-      </section>
+      </div>
     </div>
   );
 }

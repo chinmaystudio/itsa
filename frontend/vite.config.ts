@@ -34,24 +34,11 @@ export default defineViteConfig(async (env) => {
       dedupe: ["react", "react-dom", "@tanstack/react-query"],
     },
     server: {
-      host: "::",
-      port: 8080,
+      host: "0.0.0.0",
+      port: 3000,
+      allowedHosts: true,
     },
   };
-
-  if (env.command === "build") {
-    const { nitro } = await import("nitro/vite");
-    viteConfig.plugins!.push(
-      nitro({
-        handlers: [
-          {
-            route: "/api/auto-reply",
-            handler: "../backend/api/auto-reply.ts",
-          },
-        ],
-      }),
-    );
-  }
 
   const loadedEnv = loadEnv(env.mode, process.cwd(), "VITE_");
   const envDefine: Record<string, string> = {};

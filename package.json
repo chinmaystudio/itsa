@@ -3,15 +3,14 @@
   "private": true,
   "type": "module",
   "workspaces": [
-    "frontend",
-    "backend"
+    "frontend"
   ],
   "scripts": {
-    "dev": "npm --prefix frontend run dev",
-    "build": "npm --prefix frontend run build",
-    "build:dev": "npm --prefix frontend run build:dev",
-    "preview": "npm --prefix frontend run preview",
-    "typecheck": "tsc --noEmit -p frontend/tsconfig.json && tsc --noEmit -p backend/tsconfig.json"
+    "dev": "npm run dev --workspace=frontend",
+    "build": "npm run build --workspace=frontend",
+    "build:dev": "npm run build:dev --workspace=frontend",
+    "preview": "npm run preview --workspace=frontend",
+    "typecheck": "npm run typecheck --workspace=frontend"
   },
   "devDependencies": {
     "typescript": "^5.8.3"

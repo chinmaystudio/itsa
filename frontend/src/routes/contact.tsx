@@ -9,7 +9,7 @@ import { motion } from "motion/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { FormLabel, FormControl, FormDescription, FormMessage } from "@/components/ui/form";
+import { Label } from "@/components/ui/label";
 import { submitContactForm } from "@/lib/supabase";
 import { sendBrevoAutoReply } from "@/server/email";
 import { itsa } from "@/data/itsa";
@@ -222,58 +222,66 @@ function ContactPage() {
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
               <div className="grid gap-6 sm:grid-cols-2">
                 <div className="space-y-2">
-                  <FormLabel className="label-mono text-xs uppercase">Your Name</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="e.g. Rahul Sharma"
-                      {...register("name")}
-                      className={`font-mono text-sm rounded-none ${errors.name ? "border-destructive" : ""}`}
-                    />
-                  </FormControl>
-                  {errors.name && <FormMessage>{errors.name.message}</FormMessage>}
-                  <FormDescription className="text-[11px]">Full name as registered</FormDescription>
+                  <Label htmlFor="contact-name" className="label-mono text-xs uppercase">Your Name</Label>
+                  <Input
+                    id="contact-name"
+                    placeholder="e.g. Rahul Sharma"
+                    {...register("name")}
+                    className={`font-mono text-sm rounded-none ${errors.name ? "border-destructive" : ""}`}
+                  />
+                  {errors.name ? (
+                    <p className="text-[11px] font-medium text-destructive">{errors.name.message}</p>
+                  ) : (
+                    <p className="text-[11px] text-muted-foreground">Full name as registered</p>
+                  )}
                 </div>
 
                 <div className="space-y-2">
-                  <FormLabel className="label-mono text-xs uppercase">Email Address</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="rahul@example.com"
-                      type="email"
-                      {...register("email")}
-                      className={`font-mono text-sm rounded-none ${errors.email ? "border-destructive" : ""}`}
-                    />
-                  </FormControl>
-                  {errors.email && <FormMessage>{errors.email.message}</FormMessage>}
-                  <FormDescription className="text-[11px]">We'll send auto-reply to this email</FormDescription>
+                  <Label htmlFor="contact-email" className="label-mono text-xs uppercase">Email Address</Label>
+                  <Input
+                    id="contact-email"
+                    placeholder="rahul@example.com"
+                    type="email"
+                    {...register("email")}
+                    className={`font-mono text-sm rounded-none ${errors.email ? "border-destructive" : ""}`}
+                  />
+                  {errors.email ? (
+                    <p className="text-[11px] font-medium text-destructive">{errors.email.message}</p>
+                  ) : (
+                    <p className="text-[11px] text-muted-foreground">We'll send auto-reply to this email</p>
+                  )}
                 </div>
               </div>
 
               <div className="space-y-2">
-                <FormLabel className="label-mono text-xs uppercase">Subject</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="e.g. Inquiry regarding Praxis Hackathon 2026"
-                    {...register("subject")}
-                    className={`font-mono text-sm rounded-none ${errors.subject ? "border-destructive" : ""}`}
-                  />
-                </FormControl>
-                {errors.subject && <FormMessage>{errors.subject.message}</FormMessage>}
-                <FormDescription className="text-[11px]">Brief topic of your inquiry</FormDescription>
+                <Label htmlFor="contact-subject" className="label-mono text-xs uppercase">Subject</Label>
+                <Input
+                  id="contact-subject"
+                  placeholder="e.g. Inquiry regarding Praxis Hackathon 2026"
+                  {...register("subject")}
+                  className={`font-mono text-sm rounded-none ${errors.subject ? "border-destructive" : ""}`}
+                />
+                {errors.subject ? (
+                  <p className="text-[11px] font-medium text-destructive">{errors.subject.message}</p>
+                ) : (
+                  <p className="text-[11px] text-muted-foreground">Brief topic of your inquiry</p>
+                )}
               </div>
 
               <div className="space-y-2">
-                <FormLabel className="label-mono text-xs uppercase">Message</FormLabel>
-                <FormControl>
-                  <Textarea
-                    placeholder="Describe your inquiry, proposal, or feedback in detail..."
-                    rows={5}
-                    {...register("message")}
-                    className={`font-mono text-sm rounded-none ${errors.message ? "border-destructive" : ""}`}
-                  />
-                </FormControl>
-                {errors.message && <FormMessage>{errors.message.message}</FormMessage>}
-                <FormDescription className="text-[11px]">Minimum 10 characters required</FormDescription>
+                <Label htmlFor="contact-message" className="label-mono text-xs uppercase">Message</Label>
+                <Textarea
+                  id="contact-message"
+                  placeholder="Describe your inquiry, proposal, or feedback in detail..."
+                  rows={5}
+                  {...register("message")}
+                  className={`font-mono text-sm rounded-none ${errors.message ? "border-destructive" : ""}`}
+                />
+                {errors.message ? (
+                  <p className="text-[11px] font-medium text-destructive">{errors.message.message}</p>
+                ) : (
+                  <p className="text-[11px] text-muted-foreground">Minimum 10 characters required</p>
+                )}
               </div>
 
               <Button

@@ -51,6 +51,64 @@ export default {
     try {
       const url = new URL(request.url);
 
+      // Store contact submissions server-side so the Supabase service-role key is never exposed.
+      if (url.pathname === "/api/contact" && request.method === "POST") {
+        try {
+          const body = (await request.json()) as {
+            name?: string;
+            email?: string;
+            subject?: string;
+            message?: string;
+          };
+          if (!body.name || !body.email || !body.subject || !body.message) {
+            return new Response(JSON.stringify({ error: "All contact fields are required" }), {
+              status: 400,
+              headers: { "Content-Type": "application/json" },
+            });
+          }
+          const supabaseUrl = process.env["SUPABASE_URL"];
+          const serviceRoleKey = process.env["SUPABASE_SERVICE_ROLE_KEY"];
+          if (!supabaseUrl || !serviceRoleKey) {
+            return new Response(JSON.stringify({ error: "Contact service is not configured" }), {
+              status: 503,
+              headers: { "Content-Type": "application/json" },
+            });
+          }
+          const response = await fetch(`${supabaseUrl}/rest/v1/contact_submissions`, {
+            method: "POST",
+            headers: {
+              apikey: serviceRoleKey,
+              Authorization: `Bearer ${serviceRoleKey}`,
+              "Content-Type": "application/json",
+              Prefer: "return=minimal",
+            },
+            body: JSON.stringify({
+              name: body.name,
+              email: body.email,
+              subject: body.subject,
+              message: body.message,
+            }),
+          });
+          if (!response.ok) {
+            const errorText = await response.text();
+            console.error("[Supabase Contact Error]", errorText);
+            return new Response(JSON.stringify({ error: "Unable to save your message" }), {
+              status: 502,
+              headers: { "Content-Type": "application/json" },
+            });
+          }
+          return new Response(JSON.stringify({ success: true }), {
+            status: 201,
+            headers: { "Content-Type": "application/json" },
+          });
+        } catch (e) {
+          return new Response(
+            JSON.stringify({ error: e instanceof Error ? e.message : String(e) }),
+            { status: 500, headers: { "Content-Type": "application/json" } },
+          );
+        }
+      }
+
       // Handle Brevo Auto-Reply API route
       if (url.pathname === "/api/auto-reply") {
         if (request.method === "OPTIONS") {

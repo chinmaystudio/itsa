@@ -1,7 +1,3 @@
-// Supabase integration — merged from a branch, not yet wired to any component.
-// Install: npm install @supabase/supabase-js
-// Then restore the createClient import when ready.
-
 export interface ContactSubmission {
   id?: string;
   name: string;
@@ -12,9 +8,14 @@ export interface ContactSubmission {
 }
 
 export async function submitContactForm(
-  _submission: Omit<ContactSubmission, "id" | "created_at">,
+  submission: Omit<ContactSubmission, "id" | "created_at">,
 ): Promise<void> {
-  throw new Error(
-    "submitContactForm: install @supabase/supabase-js and configure VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY to enable this.",
-  );
+  const response = await fetch("/api/contact", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(submission),
+  });
+
+  const result = (await response.json().catch(() => ({}))) as { error?: string };
+  if (!response.ok) throw new Error(result.error || "Unable to submit your message.");
 }

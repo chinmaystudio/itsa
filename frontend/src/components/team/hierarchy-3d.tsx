@@ -295,9 +295,25 @@ interface Framing {
   distance: number;
 }
 
-function frameVisible(nodes: SceneNode[], fovDeg: number, aspect: number): Framing {
-  const [cx, cy, cz] = centroidOf(nodes);
-  let radius = 3;
+function frameVisible(
+  nodes: SceneNode[],
+  fovDeg: number,
+  aspect: number,
+  focusNode?: SceneNode,
+): Framing {
+  const [cx, cy, cz] = focusNode?.position ?? centroidOf(nodes);
+  // A clicked section becomes the visual anchor, like a mind-map focus. Keep
+  // enough context around it to make the parent/children relationship legible.
+  const contextRadius = focusNode
+    ? focusNode.kind === "community"
+      ? 7.2
+      : focusNode.kind === "branch"
+        ? 8.6
+        : focusNode.kind === "root"
+          ? 12
+          : 5.4
+    : 0;
+  let radius = Math.max(3, contextRadius);
   for (const node of nodes) {
     const dx = node.position[0] - cx;
     const dy = node.position[1] - cy;
@@ -307,7 +323,7 @@ function frameVisible(nodes: SceneNode[], fovDeg: number, aspect: number): Frami
   const vHalf = Math.tan((fovDeg * Math.PI) / 360);
   const hHalf = vHalf * (aspect > 0 ? aspect : 1);
   const half = Math.min(vHalf, hHalf);
-  const distance = Math.min(48, Math.max(6, (radius / half) * 1.12 + 1.2));
+  const distance = Math.min(48, Math.max(5.5, (radius / half) * 1.08 + 0.8));
   return { target: [cx, cy, cz], distance };
 }
 
@@ -606,6 +622,7 @@ function SceneContents({
   colors,
   reduced,
   onToggle,
+  focusId,
   mobile,
 }: {
   scene: HierarchyScene;
@@ -613,6 +630,7 @@ function SceneContents({
   colors: SceneColors;
   reduced: boolean;
   onToggle: (node: SceneNode) => void;
+  focusId: string | null;
   mobile: boolean;
 }) {
   const { nodes, dimmedIds } = useMemo(() => visibleNodes(scene, expanded), [scene, expanded]);
@@ -631,9 +649,10 @@ function SceneContents({
   // Auto-framing: the camera distance is derived from the bounding radius of
   // everything currently visible, so every hierarchy level always fits the
   // viewport — on wide desktops and narrow portrait phones alike.
+  const focusNode = focusId ? scene.byId.get(focusId) : undefined;
   const framing = useMemo(
-    () => frameVisible(nodes, camera.fov, size.width / Math.max(1, size.height)),
-    [nodes, camera, size],
+    () => frameVisible(nodes, camera.fov, size.width / Math.max(1, size.height), focusNode),
+    [nodes, camera, size, focusNode],
   );
 
   // Keep the mobile fov in sync even when the flag flips after mount.
@@ -733,6 +752,7 @@ export default function Hierarchy3D({
   const [mounted, setMounted] = useState(false);
   const [supported, setSupported] = useState(true);
   const [expanded, setExpanded] = useState<ReadonlySet<string>>(new Set());
+  const [focusId, setFocusId] = useState<string | null>(null);
   const [colors, setColors] = useState<SceneColors>(() => readSceneColors());
   const [mobile, setMobile] = useState(false);
   const scene = useMemo(() => buildScene(tree, mobile), [tree, mobile]);
@@ -767,17 +787,21 @@ export default function Hierarchy3D({
   const toggle = (node: SceneNode) => {
     if (node.kind === "group") return;
     if (node.kind === "member" && node.member) {
+      setFocusId(node.id);
       onSelectMember(node.member);
       return;
     }
+    setFocusId(node.id);
     setExpanded((current) => {
       const next = new Set(current);
       if (next.has(node.id)) {
         next.delete(node.id);
         if (node.id === "root") {
+          setFocusId(null);
           for (const branch of BRANCH_IDS) next.delete(branch);
           for (const community of scene.communities) next.delete(community.id);
         } else if (node.id === "communities") {
+          setFocusId("communities");
           for (const community of scene.communities) next.delete(community.id);
         }
         return next;
@@ -803,6 +827,7 @@ export default function Hierarchy3D({
   const crumbs = breadcrumbPath(scene, expanded);
 
   const jumpTo = (target: string) => {
+    setFocusId(target === "root" ? "root" : target);
     setExpanded(() => {
       if (target === "root") return new Set<string>(["root"]);
       const next = new Set<string>(["root"]);
@@ -822,14 +847,17 @@ export default function Hierarchy3D({
       const openCommunity = scene.communities.find((c) => next.has(c.id));
       if (openCommunity) {
         next.delete(openCommunity.id);
+        setFocusId("communities");
         return next;
       }
       const openBranch = BRANCH_IDS.find((b) => next.has(b));
       if (openBranch) {
         next.delete(openBranch);
+        setFocusId("root");
         return next;
       }
       next.delete("root");
+      setFocusId(null);
       return next;
     });
   };
@@ -872,7 +900,7 @@ export default function Hierarchy3D({
         ) : null}
       </nav>
 
-      <div className="relative h-[68vh] min-h-[440px] overflow-hidden border border-border bg-surface">
+      <div className="relative h-[68vh] min-h-[420px] overflow-hidden border border-border bg-surface sm:min-h-[440px]">
         <div aria-hidden className="grid-paper pointer-events-none absolute inset-0 opacity-60" />
         {mounted && supported ? (
           <Canvas
@@ -888,6 +916,7 @@ export default function Hierarchy3D({
               colors={colors}
               reduced={reduced}
               onToggle={toggle}
+              focusId={focusId}
               mobile={mobile}
             />
           </Canvas>

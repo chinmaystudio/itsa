@@ -51,22 +51,14 @@ function ContactPage() {
 
   const onSubmit = async (data: FormValues) => {
     try {
-      await submitContactForm(data);
-
-      await fetch(`${backendUrl}/api/auto-reply`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: data.name,
-          email: data.email,
-          subject: data.subject,
-          message: data.message,
-        }),
-      }).catch((err) => console.warn("Auto-reply API notice:", err));
+      const result = await submitContactForm(data);
+      const emailNotice = result.email?.success
+        ? " A confirmation email is on its way."
+        : " Your message was saved, but the confirmation email could not be sent. Please check the address or contact us directly.";
 
       setFormResult({
         type: "success",
-        message: "Your message has been sent successfully! We'll get back to you within 24 hours.",
+        message: `Your message has been sent successfully! We'll get back to you within 24 hours.${emailNotice}`,
       });
       reset();
     } catch (error) {
@@ -183,6 +175,36 @@ function ContactPage() {
                 <span className="text-muted-foreground">Closed</span>
               </div>
             </div>
+          </div>
+
+          {/* Responsive campus map */}
+          <div className="ink-card overflow-hidden border border-border bg-surface">
+            <div className="p-6">
+              <div className="flex items-center gap-3">
+                <MapPin className="size-5 text-primary" />
+                <div>
+                  <h3 className="font-display text-lg font-bold">Find PCCoE</h3>
+                  <p className="mt-1 text-xs text-muted-foreground">Sector 26, Pradhikaran, Nigdi, Pune 411044</p>
+                </div>
+              </div>
+            </div>
+            <div className="relative aspect-[16/10] min-h-[220px] w-full border-t border-border bg-muted sm:aspect-[16/8]">
+              <iframe
+                title="Map showing Pimpri Chinchwad College of Engineering, Pune"
+                src="https://www.google.com/maps?q=Pimpri+Chinchwad+College+of+Engineering+Pune&output=embed"
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                className="absolute inset-0 size-full border-0 grayscale contrast-125"
+              />
+            </div>
+            <a
+              href="https://www.google.com/maps/search/?api=1&query=Pimpri+Chinchwad+College+of+Engineering+Pune"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block border-t border-border px-6 py-3 font-mono text-[10px] uppercase tracking-[0.16em] text-primary hover:bg-primary/10"
+            >
+              Open directions in Google Maps →
+            </a>
           </div>
         </div>
 

@@ -10,16 +10,28 @@ export interface AutoReplyPayload {
   message?: string | undefined;
 }
 
+export type RuntimeEnv = Record<string, unknown>;
+
+function readEnv(name: string, runtimeEnv?: RuntimeEnv): string {
+  const runtimeValue = runtimeEnv?.[name];
+  if (typeof runtimeValue === "string" && runtimeValue) return runtimeValue;
+  const processValue = typeof process !== "undefined" ? process.env[name] : undefined;
+  return processValue || "";
+}
+
 export interface AutoReplyResult {
   success: boolean;
   messageId?: string | undefined;
   error?: string | undefined;
 }
 
-export async function sendBrevoAutoReply(payload: AutoReplyPayload): Promise<AutoReplyResult> {
-  const apiKey = process.env["BREVO_API_KEY"] || "";
-  const senderEmail = process.env["BREVO_SENDER_EMAIL"] || "itsa.pccoe@pccoepune.org";
-  const senderName = process.env["BREVO_SENDER_NAME"] || "ITSA PCCoE";
+export async function sendBrevoAutoReply(
+  payload: AutoReplyPayload,
+  runtimeEnv?: RuntimeEnv,
+): Promise<AutoReplyResult> {
+  const apiKey = readEnv("BREVO_API_KEY", runtimeEnv);
+  const senderEmail = readEnv("BREVO_SENDER_EMAIL", runtimeEnv) || "itsa.pccoe@pccoepune.org";
+  const senderName = readEnv("BREVO_SENDER_NAME", runtimeEnv) || "ITSA PCCoE";
 
   if (!apiKey) {
     console.warn("[Brevo] BREVO_API_KEY is not configured in environment.");
@@ -133,7 +145,7 @@ export async function sendBrevoAutoReply(payload: AutoReplyPayload): Promise<Aut
     }
 
     // 2. Otherwise (e.g. starts with xsmtpsib-), use SMTP relay via Nodemailer
-    const smtpLogin = process.env["BREVO_SMTP_LOGIN"] || senderEmail;
+    const smtpLogin = readEnv("BREVO_SMTP_LOGIN", runtimeEnv) || senderEmail;
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore — nodemailer is an optional server-side dep; install if needed
     const nodemailer = await import("nodemailer");

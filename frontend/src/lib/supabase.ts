@@ -11,7 +11,7 @@ const backendUrl = (import.meta.env.VITE_BACKEND_URL || "").replace(/\/$/, "");
 
 export async function submitContactForm(
   submission: Omit<ContactSubmission, "id" | "created_at">,
-): Promise<void> {
+): Promise<{ email?: { success: boolean; error?: string } }> {
   const response = await fetch(`${backendUrl}/api/contact`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -20,4 +20,5 @@ export async function submitContactForm(
 
   const result = (await response.json().catch(() => ({}))) as { error?: string };
   if (!response.ok) throw new Error(result.error || "Unable to submit your message.");
+  return result as { email?: { success: boolean; error?: string } };
 }

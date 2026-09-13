@@ -1,265 +1,38 @@
-/**
- * Team model: normalizes `src/data/teams.json` into the centralized
- * `TeamTree` consumed by the 3D hierarchy, 2D flowchart, member search and
- * member profiles. Server-only module — imported by `src/server/team/*.ts`.
- *
- * Mapping notes (dataset name → canonical community):
- *  - "Event Management Team" → "Event Management" and "Logistics Team" → "Logistics".
- *  - "Videography and Photography" → "Videography and Photography".
- *  - "Event Documentation Team" → "Documentation".
- *  - "Publicity and Social Media Team" → "Publicity and Social Media".
- *  - "NSS" and "ISR Lead" → "NSS and ISR".
- *  - "Sponsorship and Budget Team" → "Sponsorship".
- *  - "Higher Studies & CDPC" → "HSC".
- *  - "Content Writing" → "Content Writing".
- *  - "Technical Team" → "Technical".
- *  - "Webmasters" and "Art Circle" map 1:1.
- *  - "Sports" and "SY Interaction Coordinator" are dataset-only teams that
- *    are not part of the required 13 communities; they surface through Core.
- */
 import rawTeams from "@/data/teams.json";
-
-import type {
-  Community,
-  CoreGroup,
-  FacultyGroup,
-  Member,
-  MemberRoleKind,
-  TeamStats,
-  TeamTree,
-} from "./types";
-
-/* ── Raw dataset shapes (narrowed at the boundary) ────────────────────── */
-
-interface RawPerson {
-  id: number;
-  name?: string;
-  post?: string;
-  position?: string;
-  year?: string;
-  photo?: string | null;
-  email?: string;
-  linkedin?: string;
-  github?: string;
-}
-
-interface RawTeam {
-  id: number;
-  name: string;
-  description?: string;
-  members?: RawPerson[];
-  lead?: RawPerson | RawPerson[];
-  coLead?: RawPerson;
-}
-
-/* ── Community mapping table ─────────────────────────────────────────── */
-
-interface CommunitySpec {
-  id: string;
-  name: string;
-  /** Dataset team names that feed this community. */
-  sources: string[];
-  /** True when the community intentionally has no dataset team (TBA). */
-  empty?: boolean;
-}
-
+import type { Community, CoreGroup, FacultyGroup, Member, MemberRoleKind, TeamStats, TeamTree } from "./types";
+interface RawPerson { id:number; name?:string; post?:string; position?:string; year?:string; photo?:string|null; email?:string; linkedin?:string; github?:string; }
+interface RawTeam { id:number; name:string; description?:string; members?:RawPerson[]; lead?:RawPerson|RawPerson[]; coLead?:RawPerson; }
+interface CommunitySpec { id:string; name:string; sources:string[]; empty?:boolean; }
 const COMMUNITY_SPECS: CommunitySpec[] = [
-  {
-    id: "event-management",
-    name: "Event Management",
-    sources: ["Event Management Team"],
-  },
-  { id: "logistics", name: "Logistics", sources: ["Logistics Team"] },
-  { id: "design", name: "Design", sources: ["Design Team"] },
-  {
-    id: "publicity-social-media",
-    name: "Publicity and Social Media",
-    sources: ["Publicity and Social Media Team"],
-  },
-  { id: "nss-isr", name: "NSS and ISR", sources: ["NSS", "ISR Lead"] },
-  { id: "sponsorship", name: "Sponsorship", sources: ["Sponsorship and Budget Team"] },
-  {
-    id: "videography-photography",
-    name: "Videography and Photography",
-    sources: ["Videography and Photography"],
-  },
-  { id: "documentation", name: "Documentation", sources: ["Event Documentation Team"] },
-  { id: "content-writing", name: "Content Writing", sources: ["Content Writing"] },
-  { id: "art-circle", name: "Art Circle", sources: ["Art Circle"] },
-  { id: "technical", name: "Technical", sources: ["Technical Team"] },
-  { id: "webmasters", name: "Webmasters", sources: ["Webmasters"] },
-  { id: "hsc", name: "HSC", sources: ["Higher Studies & CDPC"] },
+{id:"sponsorship-and-budget",name:"Sponsorship and Budget Team",sources:["Sponsorship and Budget Team"]},
+{id:"event-management",name:"Event Management Team",sources:["Event Management Team"]},
+{id:"event-documentation",name:"Event Documentation Team",sources:["Event Documentation Team"]},
+{id:"publicity-and-social-media",name:"Publicity and Social Media Team",sources:["Publicity and Social Media Team"]},
+{id:"technical",name:"Technical Team",sources:["Technical Team"]},
+{id:"webmasters",name:"Webmasters",sources:["Webmasters"]},
+{id:"nss",name:"NSS",sources:["NSS"]},
+{id:"isr-lead",name:"ISR Lead",sources:["ISR Lead"]},
+{id:"art-circle",name:"Art Circle",sources:["Art Circle"]},
+{id:"sports",name:"Sports",sources:["Sports"]},
+{id:"logistics",name:"Logistics Team",sources:["Logistics Team"]},
+{id:"design",name:"Design Team",sources:["Design Team"]},
+{id:"content-writing",name:"Content Writing",sources:["Content Writing"]},
+{id:"higher-studies-cdpc",name:"Higher Studies & CDPC",sources:["Higher Studies & CDPC"]},
+{id:"videography-and-photography",name:"Videography and Photography",sources:["Videography and Photography"]},
+{id:"sy-interaction-coordinator",name:"SY Interaction Coordinator",sources:["SY Interaction Coordinator"]},
+{id:"equal-opportunity-cell",name:"Equal Opportunity Cell",sources:["Equal Opportunity Cell"]}
 ];
-
-const COMMUNITY_ORDER = new Map(COMMUNITY_SPECS.map((spec, i) => [spec.name, i]));
-
-/* ── Helpers ─────────────────────────────────────────────────────────── */
-
-function cleanString(value: string | null | undefined): string | null {
-  if (typeof value !== "string") return null;
-  const trimmed = value.trim();
-  return trimmed.length > 0 ? trimmed : null;
-}
-
-function toMember(
-  person: RawPerson,
-  opts: {
-    roleKind: MemberRoleKind;
-    position: string;
-    groupName: string;
-    branchId: Member["branchId"];
-    communityId: string | null;
-    isLead: boolean;
-  },
-): Member {
-  return {
-    id: `m${person.id}`,
-    name: cleanString(person.name) ?? "To be announced",
-    position: opts.position,
-    roleKind: opts.roleKind,
-    year: cleanString(person.year),
-    photo: cleanString(person.photo),
-    email: cleanString(person.email),
-    linkedin: cleanString(person.linkedin),
-    github: cleanString(person.github),
-    groupName: opts.groupName,
-    branchId: opts.branchId,
-    communityId: opts.communityId,
-    isLead: opts.isLead,
-  };
-}
-
-function findTeam(name: string): RawTeam | undefined {
-  return rawTeams.find((team) => (team as RawTeam).name === name) as RawTeam | undefined;
-}
-
-/* ── Faculty (officially published facts only) ───────────────────────── */
-
-function buildFaculty(): FacultyGroup {
-  const faculty: Member[] = [
-    {
-      id: "faculty-hod",
-      name: "Dr. Jayashree Katti",
-      position: "Head of Department",
-      roleKind: "faculty",
-      year: null,
-      photo: null,
-      email: null,
-      linkedin: null,
-      github: null,
-      groupName: "Faculty",
-      branchId: "faculty",
-      communityId: null,
-      isLead: true,
-    },
-    {
-      id: "faculty-coordinator",
-      name: "Mrs. Shraddha Tawade",
-      position: "ITSA Coordinator",
-      roleKind: "faculty",
-      year: null,
-      photo: null,
-      email: null,
-      linkedin: null,
-      github: null,
-      groupName: "Faculty",
-      branchId: "faculty",
-      communityId: null,
-      isLead: true,
-    },
-  ];
-  return { id: "faculty", name: "Faculty", members: faculty };
-}
-
-function buildCore(): CoreGroup {
-  const coreTeam = findTeam("Core Team");
-  const members: Member[] = (coreTeam?.members ?? []).map((person) =>
-    toMember(person, {
-      roleKind: "core",
-      position: cleanString(person.post) ?? "Core Member",
-      groupName: "Core Team",
-      branchId: "core",
-      communityId: null,
-      isLead: false,
-    }),
-  );
-  return { id: "core", name: "Core", members };
-}
-
-function membersFromTeam(
-  team: RawTeam,
-  communityId: string,
-  communityName: string,
-): { lead: Member[]; executives: Member[] } {
-  const lead: Member[] = [];
-  const executives: Member[] = [];
-  const rawLead = team.lead;
-  if (Array.isArray(rawLead)) {
-    for (const person of rawLead) {
-      lead.push(toMember(person, { roleKind: "lead", position: cleanString(person.position) ?? "Lead", groupName: communityName, branchId: "communities", communityId, isLead: true }));
-    }
-  } else if (rawLead) {
-    lead.push(toMember(rawLead, { roleKind: "lead", position: cleanString(rawLead.position) ?? "Lead", groupName: communityName, branchId: "communities", communityId, isLead: true }));
-  }
-  if (team.coLead) {
-    lead.push(toMember(team.coLead, { roleKind: "co-lead", position: cleanString(team.coLead.position) ?? "Co-Lead", groupName: communityName, branchId: "communities", communityId, isLead: true }));
-  }
-  for (const person of team.members ?? []) {
-    executives.push(toMember(person, { roleKind: "executive", position: cleanString(person.position) ?? "Executive", groupName: communityName, branchId: "communities", communityId, isLead: false }));
-  }
-  return { lead, executives };
-}
-
-function buildCommunities(): Community[] {
-  return COMMUNITY_SPECS.map((spec) => {
-    if (spec.empty) return { id: spec.id, name: spec.name, description: null, lead: [], executives: [] };
-    const lead: Member[] = [];
-    const executives: Member[] = [];
-    let description: string | null = null;
-    for (const sourceName of spec.sources) {
-      const team = findTeam(sourceName);
-      if (!team) continue;
-      const extracted = membersFromTeam(team, spec.id, spec.name);
-      for (const person of extracted.lead) if (!lead.some((m) => m.id === person.id)) lead.push(person);
-      for (const person of extracted.executives) if (!executives.some((m) => m.id === person.id)) executives.push(person);
-      description = cleanString(team.description) ?? description;
-    }
-    return { id: spec.id, name: spec.name, description, lead, executives };
-  }).sort((a, b) => (COMMUNITY_ORDER.get(a.name) ?? 99) - (COMMUNITY_ORDER.get(b.name) ?? 99));
-}
-
-let cachedTree: TeamTree | null = null;
-
-export function getTeamTree(): TeamTree {
-  if (cachedTree) return cachedTree;
-  cachedTree = { root: { id: "root", name: "ITSA TEAM" }, faculty: buildFaculty(), core: buildCore(), communities: buildCommunities() };
-  return cachedTree;
-}
-
-export function getAllMembers(): Member[] {
-  const tree = getTeamTree();
-  const members: Member[] = [];
-  members.push(...tree.faculty.members);
-  members.push(...tree.core.members);
-  for (const community of tree.communities) { members.push(...community.lead); members.push(...community.executives); }
-  return members;
-}
-
-export function getTeamStats(): TeamStats {
-  const tree = getTeamTree();
-  let leads = 0; let executives = 0;
-  for (const community of tree.communities) { leads += community.lead.length; executives += community.executives.length; }
-  const total = tree.faculty.members.length + tree.core.members.length + leads + executives;
-  return { communities: tree.communities.length, totalMembers: total, leads, executives };
-}
-
-export function getCommunityById(id: string): Community | null {
-  return getTeamTree().communities.find((c) => c.id === id) ?? null;
-}
-
-export function getMembersOfBranch(branchId: Member["branchId"]): Member[] {
-  const tree = getTeamTree();
-  if (branchId === "faculty") return tree.faculty.members;
-  if (branchId === "core") return tree.core.members;
-  return [];
-}
+const COMMUNITY_ORDER=new Map(COMMUNITY_SPECS.map((s,i)=>[s.name,i]));
+function cleanString(v:string|null|undefined):string|null { if(typeof v!=="string") return null; const t=v.trim(); return t||null; }
+function toMember(p:RawPerson,o:{roleKind:MemberRoleKind;position:string;groupName:string;branchId:Member["branchId"];communityId:string|null;isLead:boolean}):Member { return {id:`m${p.id}`,name:cleanString(p.name)??"To be announced",position:o.position,roleKind:o.roleKind,year:cleanString(p.year),photo:cleanString(p.photo),email:cleanString(p.email),linkedin:cleanString(p.linkedin),github:cleanString(p.github),groupName:o.groupName,branchId:o.branchId,communityId:o.communityId,isLead:o.isLead}; }
+function findTeam(n:string):RawTeam|undefined { return rawTeams.find(t=>(t as RawTeam).name===n) as RawTeam|undefined; }
+function buildFaculty():FacultyGroup { const common={roleKind:"faculty" as const,year:null,photo:null,email:null,linkedin:null,github:null,groupName:"Faculty",branchId:"faculty" as const,communityId:null,isLead:true}; return {id:"faculty",name:"Faculty",members:[{id:"faculty-hod",name:"Dr. Jayashree Katti",position:"Head of Department",...common},{id:"faculty-coordinator",name:"Mrs. Shraddha Tawade",position:"ITSA Coordinator",...common}]}; }
+function buildCore():CoreGroup { const t=findTeam("Core Team"); return {id:"core",name:"Core",members:(t?.members??[]).map(p=>toMember(p,{roleKind:"core",position:cleanString(p.post)??"Core Member",groupName:"Core Team",branchId:"core",communityId:null,isLead:false}))}; }
+function membersFromTeam(t:RawTeam,cid:string,cn:string):{lead:Member[];executives:Member[]} { const lead:Member[]=[],executives:Member[]; const raw=t.lead; if(Array.isArray(raw)) for(const p of raw) lead.push(toMember(p,{roleKind:"lead",position:cleanString(p.position)??"Lead",groupName:cn,branchId:"communities",communityId:cid,isLead:true})); else if(raw) lead.push(toMember(raw,{roleKind:"lead",position:cleanString(raw.position)??"Lead",groupName:cn,branchId:"communities",communityId:cid,isLead:true})); if(t.coLead) lead.push(toMember(t.coLead,{roleKind:"co-lead",position:cleanString(t.coLead.position)??"Co-Lead",groupName:cn,branchId:"communities",communityId:cid,isLead:true})); for(const p of t.members??[]) executives.push(toMember(p,{roleKind:"executive",position:cleanString(p.position)??"Executive",groupName:cn,branchId:"communities",communityId:cid,isLead:false})); return {lead,executives}; }
+function buildCommunities():Community[] { return COMMUNITY_SPECS.map(s=>{const lead:Member[]=[],executives:Member[]=[];let description:string|null=null; for(const n of s.sources){const t=findTeam(n);if(!t)continue;const e=membersFromTeam(t,s.id,s.name);for(const p of e.lead)if(!lead.some(m=>m.id===p.id))lead.push(p);for(const p of e.executives)if(!executives.some(m=>m.id===p.id))executives.push(p);description=cleanString(t.description)??description;}return {id:s.id,name:s.name,description,lead,executives};}).sort((a,b)=>(COMMUNITY_ORDER.get(a.name)??99)-(COMMUNITY_ORDER.get(b.name)??99)); }
+let cachedTree:TeamTree|null=null;
+export function getTeamTree():TeamTree { if(cachedTree)return cachedTree; cachedTree={root:{id:"root",name:"ITSA TEAM"},faculty:buildFaculty(),core:buildCore(),communities:buildCommunities()};return cachedTree; }
+export function getAllMembers():Member[] { const t=getTeamTree(),m:Member[]=[...t.faculty.members,...t.core.members];for(const c of t.communities)m.push(...c.lead,...c.executives);return m; }
+export function getTeamStats():TeamStats { const t=getTeamTree();let leads=0,executives=0;for(const c of t.communities){leads+=c.lead.length;executives+=c.executives.length;}return {communities:t.communities.length,totalMembers:t.faculty.members.length+t.core.members.length+leads+executives,leads,executives}; }
+export function getCommunityById(id:string):Community|null { return getTeamTree().communities.find(c=>c.id===id)??null; }
+export function getMembersOfBranch(id:Member["branchId"]):Member[] { const t=getTeamTree();if(id==="faculty")return t.faculty.members;if(id==="core")return t.core.members;return []; }

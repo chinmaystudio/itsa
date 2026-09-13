@@ -2,7 +2,7 @@ import "./server/error-capture";
 
 import { consumeLastCapturedError } from "./server/error-capture";
 import { renderErrorPage } from "./server/error-page";
-import { sendBrevoAutoReply } from "./server/email";
+import { sendBrevoAutoReply, type RuntimeEnv } from "./server/email";
 
 type ServerEntry = {
   fetch: (request: Request, env: unknown, ctx: unknown) => Promise<Response> | Response;
@@ -68,8 +68,11 @@ export default {
               status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
             });
           }
-          const supabaseUrl = process.env["SUPABASE_URL"];
-          const serviceRoleKey = process.env["SUPABASE_SERVICE_ROLE_KEY"];
+          const runtimeEnv = (env && typeof env === "object" ? env : {}) as RuntimeEnv;
+          const supabaseUrl = (runtimeEnv["SUPABASE_URL"] as string | undefined) || process.env["SUPABASE_URL"];
+          const serviceRoleKey =
+            (runtimeEnv["SUPABASE_SERVICE_ROLE_KEY"] as string | undefined) ||
+            process.env["SUPABASE_SERVICE_ROLE_KEY"];
           if (!supabaseUrl || !serviceRoleKey) {
             return new Response(JSON.stringify({ error: "Contact service is not configured" }), {
               status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -86,8 +89,13 @@ export default {
               status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" },
             });
           }
-          return new Response(JSON.stringify({ success: true }), {
-            status: 201, headers: { ...corsHeaders, "Content-Type": "application/json" },
+          const emailResult = await sendBrevoAutoReply(
+            { name: body.name, email: body.email, subject: body.subject, message: body.message },
+            runtimeEnv,
+          );
+          return new Response(JSON.stringify({ success: true, email: emailResult }), {
+            status: 201,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
           });
         } catch (e) {
           return new Response(JSON.stringify({ error: e instanceof Error ? e.message : String(e) }), {
@@ -104,7 +112,7 @@ export default {
               status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
             });
           }
-          const result = await sendBrevoAutoReply({ name: body.name, email: body.email, subject: body.subject, message: body.message });
+          const result = await sendBrevoAutoReply({ name: body.name, email: body.email, subject: body.subject, message: body.message }, (env && typeof env === "object" ? env : {}) as RuntimeEnv);
           return new Response(JSON.stringify(result), {
             status: result.success ? 200 : 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
           });

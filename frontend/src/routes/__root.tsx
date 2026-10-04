@@ -6,8 +6,10 @@ import {
   useRouter,
   HeadContent,
   Scripts,
+  useRouterState,
 } from "@tanstack/react-router";
-import { type ReactNode } from "react";
+import { useCallback, useState, type ReactNode } from "react";
+import { PraxisFlyer } from "@/components/praxis-flyer";
 
 import appCss from "../styles.css?url";
 import { IntroSequence } from "@/components/effects/intro";
@@ -147,10 +149,13 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const [introComplete, setIntroComplete] = useState(false);
+  const finishIntro = useCallback(() => setIntroComplete(true), []);
+  const pathname = useRouterState({ select: (state) => state.location.pathname });
 
   return (
     <QueryClientProvider client={queryClient}>
-      <IntroSequence />
+      <IntroSequence onComplete={finishIntro} />
       <SiteNav />
       <main>
         {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
@@ -159,6 +164,7 @@ function RootComponent() {
         </PageTransition>
       </main>
       <SiteFooter />
+      <PraxisFlyer ready={introComplete} autoOpen={pathname === "/"} />
     </QueryClientProvider>
   );
 }

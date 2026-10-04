@@ -23,19 +23,18 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: "npm"
       - name: Install Root Dependencies
-        run: npm install
-      - name: Install Frontend Dependencies
-        working-directory: frontend
-        run: npm install --ignore-scripts && npm install --no-save --ignore-scripts nitro
+        run: npm ci --ignore-scripts
       - name: Typecheck Workspace
         run: npm run typecheck
+      - name: Test contact security
+        run: npm test
       - name: Prerender Static Site
         run: node scripts/build-static.mjs
         env:
-          GITHUB_ACTIONS: "true"
+          BASE_PATH: ""
       - name: Upload Static Site Artifact
         uses: actions/upload-artifact@v4
         with:

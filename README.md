@@ -2,6 +2,26 @@
 
 Official website of ITSA (IT Department, PCCoE, Pune), built with TanStack Start.
 
+## PRAXIS flyer
+
+The PRAXIS 2026 announcement uses `frontend/public/posters/praxis-2026.jpeg`.
+Its component is `frontend/src/components/praxis-flyer.tsx`, with scoped styles
+in `frontend/src/styles.css`. It opens on the home page after the intro, once
+per tab session, and can be reopened using the bottom-right PRAXIS button on
+any page. It expires at midnight on 11 October 2026, Asia/Kolkata.
+The registration URL, `https://praxis26.in`, was decoded from the supplied poster.
+Update the session key, expiry, poster and copy together for a future event.
+
+Use Node.js 22.12+ and `npm ci --ignore-scripts`, then `npm run dev` (port 3000).
+Run `npm test`, `npm run typecheck` and `npm run build` before publishing.
+`npm run build:static` generates `frontend/.output/public` for static hosting;
+set `BASE_PATH` to an empty string for the Cloudflare Pages root domain.
+Static hosting needs a separately deployed contact backend configured through
+`VITE_BACKEND_URL`; the static output alone cannot serve `/api/contact` or
+TanStack server functions. Keep the existing backend deployment when publishing.
+
+See `SECURITY-REVIEW.md` for security changes and the remaining hosting checks.
+
 ## Stack
 
 - **Framework**: TanStack Start (React 19, SSR via Nitro)

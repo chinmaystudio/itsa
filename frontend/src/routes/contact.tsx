@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { contactSchema } from "@/lib/contact-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Mail, Phone, MapPin, Send, CheckCircle2, AlertCircle, Clock } from "lucide-react";
 import { motion } from "motion/react";
@@ -13,12 +14,7 @@ import { Label } from "@/components/ui/label";
 import { submitContactForm } from "@/lib/supabase";
 import { itsa } from "@/data/itsa";
 
-const schema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
-  email: z.string().email("Invalid email address"),
-  subject: z.string().min(3, "Subject must be at least 3 characters"),
-  message: z.string().min(10, "Message must be at least 10 characters"),
-});
+const schema = contactSchema;
 
 type FormValues = z.infer<typeof schema>;
 
@@ -119,7 +115,8 @@ function ContactPage() {
         <div className="space-y-6">
           <h2 className="display-md text-2xl font-bold">Contact Channels</h2>
           <p className="text-sm text-muted-foreground">
-            Our student body leads and faculty advisors are available during working hours at PCCoE Pune campus.
+            Our student body leads and faculty advisors are available during working hours at PCCoE
+            Pune campus.
           </p>
 
           <div className="space-y-4">
@@ -184,7 +181,9 @@ function ContactPage() {
                 <MapPin className="size-5 text-primary" />
                 <div>
                   <h3 className="font-display text-lg font-bold">Find PCCoE</h3>
-                  <p className="mt-1 text-xs text-muted-foreground">Sector 26, Pradhikaran, Nigdi, Pune 411044</p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Sector 26, Pradhikaran, Nigdi, Pune 411044
+                  </p>
                 </div>
               </div>
             </div>
@@ -250,7 +249,9 @@ function ContactPage() {
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
               <div className="grid gap-6 sm:grid-cols-2">
                 <div className="space-y-2">
-                  <Label htmlFor="contact-name" className="label-mono text-xs uppercase">Your Name</Label>
+                  <Label htmlFor="contact-name" className="label-mono text-xs uppercase">
+                    Your Name
+                  </Label>
                   <Input
                     id="contact-name"
                     placeholder="e.g. Rahul Sharma"
@@ -258,14 +259,18 @@ function ContactPage() {
                     className={`font-mono text-sm rounded-none ${errors.name ? "border-destructive" : ""}`}
                   />
                   {errors.name ? (
-                    <p className="text-[11px] font-medium text-destructive">{errors.name.message}</p>
+                    <p className="text-[11px] font-medium text-destructive">
+                      {errors.name.message}
+                    </p>
                   ) : (
                     <p className="text-[11px] text-muted-foreground">Full name as registered</p>
                   )}
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="contact-email" className="label-mono text-xs uppercase">Email Address</Label>
+                  <Label htmlFor="contact-email" className="label-mono text-xs uppercase">
+                    Email Address
+                  </Label>
                   <Input
                     id="contact-email"
                     placeholder="rahul@example.com"
@@ -274,15 +279,21 @@ function ContactPage() {
                     className={`font-mono text-sm rounded-none ${errors.email ? "border-destructive" : ""}`}
                   />
                   {errors.email ? (
-                    <p className="text-[11px] font-medium text-destructive">{errors.email.message}</p>
+                    <p className="text-[11px] font-medium text-destructive">
+                      {errors.email.message}
+                    </p>
                   ) : (
-                    <p className="text-[11px] text-muted-foreground">We'll send auto-reply to this email</p>
+                    <p className="text-[11px] text-muted-foreground">
+                      We'll send auto-reply to this email
+                    </p>
                   )}
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="contact-subject" className="label-mono text-xs uppercase">Subject</Label>
+                <Label htmlFor="contact-subject" className="label-mono text-xs uppercase">
+                  Subject
+                </Label>
                 <Input
                   id="contact-subject"
                   placeholder="e.g. Inquiry regarding Praxis Hackathon 2026"
@@ -290,14 +301,18 @@ function ContactPage() {
                   className={`font-mono text-sm rounded-none ${errors.subject ? "border-destructive" : ""}`}
                 />
                 {errors.subject ? (
-                  <p className="text-[11px] font-medium text-destructive">{errors.subject.message}</p>
+                  <p className="text-[11px] font-medium text-destructive">
+                    {errors.subject.message}
+                  </p>
                 ) : (
                   <p className="text-[11px] text-muted-foreground">Brief topic of your inquiry</p>
                 )}
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="contact-message" className="label-mono text-xs uppercase">Message</Label>
+                <Label htmlFor="contact-message" className="label-mono text-xs uppercase">
+                  Message
+                </Label>
                 <Textarea
                   id="contact-message"
                   placeholder="Describe your inquiry, proposal, or feedback in detail..."
@@ -306,9 +321,13 @@ function ContactPage() {
                   className={`font-mono text-sm rounded-none ${errors.message ? "border-destructive" : ""}`}
                 />
                 {errors.message ? (
-                  <p className="text-[11px] font-medium text-destructive">{errors.message.message}</p>
+                  <p className="text-[11px] font-medium text-destructive">
+                    {errors.message.message}
+                  </p>
                 ) : (
-                  <p className="text-[11px] text-muted-foreground">Minimum 10 characters required</p>
+                  <p className="text-[11px] text-muted-foreground">
+                    Minimum 10 characters required
+                  </p>
                 )}
               </div>
 

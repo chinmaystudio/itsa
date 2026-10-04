@@ -2,7 +2,8 @@ import "./server/error-capture";
 
 import { consumeLastCapturedError } from "./server/error-capture";
 import { renderErrorPage } from "./server/error-page";
-import { sendBrevoAutoReply, type RuntimeEnv } from "./server/email";
+import { type RuntimeEnv } from "./server/email";
+import { handleContact } from "./server/contact";
 
 type ServerEntry = {
   fetch: (request: Request, env: unknown, ctx: unknown) => Promise<Response> | Response;
@@ -41,86 +42,15 @@ function isH3SwallowedErrorBody(body: string): boolean {
   }
 }
 
-export default {
+const server = {
   async fetch(request: Request, env: unknown, ctx: unknown) {
     try {
       const url = new URL(request.url);
-      const corsHeaders = {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "POST, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type",
-      };
-
-      if (
-        request.method === "OPTIONS" &&
-        (url.pathname === "/api/contact" || url.pathname === "/api/auto-reply")
-      ) {
-        return new Response(null, { status: 204, headers: corsHeaders });
+      if (url.pathname === "/api/auto-reply") {
+        return new Response(null, { status: 404 });
       }
-
-      if (url.pathname === "/api/contact" && request.method === "POST") {
-        try {
-          const body = (await request.json()) as {
-            name?: string; email?: string; subject?: string; message?: string;
-          };
-          if (!body.name || !body.email || !body.subject || !body.message) {
-            return new Response(JSON.stringify({ error: "All contact fields are required" }), {
-              status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
-            });
-          }
-          const runtimeEnv = (env && typeof env === "object" ? env : {}) as RuntimeEnv;
-          const supabaseUrl = (runtimeEnv["SUPABASE_URL"] as string | undefined) || process.env["SUPABASE_URL"];
-          const serviceRoleKey =
-            (runtimeEnv["SUPABASE_SERVICE_ROLE_KEY"] as string | undefined) ||
-            process.env["SUPABASE_SERVICE_ROLE_KEY"];
-          if (!supabaseUrl || !serviceRoleKey) {
-            return new Response(JSON.stringify({ error: "Contact service is not configured" }), {
-              status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" },
-            });
-          }
-          const response = await fetch(`${supabaseUrl}/rest/v1/contact_submissions`, {
-            method: "POST",
-            headers: { apikey: serviceRoleKey, Authorization: `Bearer ${serviceRoleKey}`, "Content-Type": "application/json", Prefer: "return=minimal" },
-            body: JSON.stringify({ name: body.name, email: body.email, subject: body.subject, message: body.message }),
-          });
-          if (!response.ok) {
-            console.error("[Supabase Contact Error]", await response.text());
-            return new Response(JSON.stringify({ error: "Unable to save your message" }), {
-              status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" },
-            });
-          }
-          const emailResult = await sendBrevoAutoReply(
-            { name: body.name, email: body.email, subject: body.subject, message: body.message },
-            runtimeEnv,
-          );
-          return new Response(JSON.stringify({ success: true, email: emailResult }), {
-            status: 201,
-            headers: { ...corsHeaders, "Content-Type": "application/json" },
-          });
-        } catch (e) {
-          return new Response(JSON.stringify({ error: e instanceof Error ? e.message : String(e) }), {
-            status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
-          });
-        }
-      }
-
-      if (url.pathname === "/api/auto-reply" && request.method === "POST") {
-        try {
-          const body = (await request.json()) as { name?: string; email?: string; subject?: string; message?: string };
-          if (!body.name || !body.email) {
-            return new Response(JSON.stringify({ success: false, error: "Name and email are required" }), {
-              status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
-            });
-          }
-          const result = await sendBrevoAutoReply({ name: body.name, email: body.email, subject: body.subject, message: body.message }, (env && typeof env === "object" ? env : {}) as RuntimeEnv);
-          return new Response(JSON.stringify(result), {
-            status: result.success ? 200 : 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
-          });
-        } catch (e) {
-          return new Response(JSON.stringify({ success: false, error: e instanceof Error ? e.message : String(e) }), {
-            status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
-          });
-        }
+      if (url.pathname === "/api/contact") {
+        return handleContact(request, (env && typeof env === "object" ? env : {}) as RuntimeEnv);
       }
 
       const handler = await getServerEntry();
@@ -128,7 +58,31 @@ export default {
       return await normalizeCatastrophicSsrResponse(response);
     } catch (error) {
       console.error(error);
-      return new Response(renderErrorPage(), { status: 500, headers: { "content-type": "text/html; charset=utf-8" } });
+      return new Response(renderErrorPage(), {
+        status: 500,
+        headers: { "content-type": "text/html; charset=utf-8" },
+      });
     }
+  },
+};
+
+// Pages _headers applies to static files; SSR/API responses need their own headers.
+export default {
+  async fetch(request: Request, env: unknown, ctx: unknown) {
+    const response = await server.fetch(request, env, ctx);
+    const headers = new Headers(response.headers);
+    headers.set("X-Content-Type-Options", "nosniff");
+    headers.set("X-Frame-Options", "DENY");
+    headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+    headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
+    headers.set(
+      "Content-Security-Policy",
+      "object-src 'none'; base-uri 'self'; frame-ancestors 'none'",
+    );
+    return new Response(response.body, {
+      status: response.status,
+      statusText: response.statusText,
+      headers,
+    });
   },
 };

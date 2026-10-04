@@ -10,9 +10,12 @@
     "build": "npm run build --workspace=frontend",
     "build:dev": "npm run build:dev --workspace=frontend",
     "preview": "npm run preview --workspace=frontend",
-    "typecheck": "npm run typecheck --workspace=frontend"
+    "typecheck": "npm run typecheck --workspace=frontend",
+    "test": "tsx --test tests/*.test.ts",
+    "build:static": "node scripts/build-static.mjs"
   },
   "devDependencies": {
+    "tsx": "4.23.15",
     "typescript": "^5.8.3"
   }
 }

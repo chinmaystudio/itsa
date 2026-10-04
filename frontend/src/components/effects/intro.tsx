@@ -7,15 +7,22 @@ const LETTERS = ["I", "T", "S", "A"];
  * Opening sequence: four ink slabs slide in, the wordmark locks, then the
  * panel splits and wipes away. Plays once per browser session.
  */
-export function IntroSequence() {
+export function IntroSequence({ onComplete }: { onComplete?: () => void }) {
   const reduced = useReducedMotion();
   const [show, setShow] = useState(false);
 
   useEffect(() => {
-    if (reduced) return;
+    if (reduced) {
+      onComplete?.();
+      return;
+    }
     try {
-      if (sessionStorage.getItem("itsa-intro-v2") === "done") return;
+      if (sessionStorage.getItem("itsa-intro-v2") === "done") {
+        onComplete?.();
+        return;
+      }
     } catch {
+      onComplete?.();
       return;
     }
     setShow(true);
@@ -32,14 +39,14 @@ export function IntroSequence() {
       clearTimeout(t);
       document.body.style.overflow = "";
     };
-  }, [reduced]);
+  }, [reduced, onComplete]);
 
   useEffect(() => {
     if (!show) document.body.style.overflow = "";
   }, [show]);
 
   return (
-    <AnimatePresence>
+    <AnimatePresence onExitComplete={() => onComplete?.()}>
       {show && (
         <motion.div
           key="intro"

@@ -121,6 +121,7 @@ export async function sendBrevoAutoReply(
     if (apiKey.startsWith("xkeysib-")) {
       const response = await fetch("https://api.brevo.com/v3/smtp/email", {
         method: "POST",
+        signal: AbortSignal.timeout(10_000),
         headers: {
           "api-key": apiKey,
           "Content-Type": "application/json",
@@ -134,11 +135,18 @@ export async function sendBrevoAutoReply(
         }),
       });
 
-      const data = (await response.json()) as { messageId?: string; message?: string; code?: string };
+      const data = (await response.json()) as {
+        messageId?: string;
+        message?: string;
+        code?: string;
+      };
 
       if (!response.ok) {
         console.error("[Brevo REST Error]", data);
-        return { success: false, error: data.message || `Brevo returned status ${response.status}` };
+        return {
+          success: false,
+          error: data.message || `Brevo returned status ${response.status}`,
+        };
       }
 
       return { success: true, messageId: data.messageId };
@@ -153,6 +161,10 @@ export async function sendBrevoAutoReply(
     const transporter = nodemailer.createTransport({
       host: "smtp-relay.brevo.com",
       port: 587,
+      requireTLS: true,
+      connectionTimeout: 10_000,
+      greetingTimeout: 10_000,
+      socketTimeout: 15_000,
       auth: {
         user: smtpLogin,
         pass: apiKey,
@@ -160,8 +172,8 @@ export async function sendBrevoAutoReply(
     });
 
     const info = await transporter.sendMail({
-      from: `"${senderName}" <${senderEmail}>`,
-      to: `"${name}" <${email}>`,
+      from: { name: senderName, address: senderEmail },
+      to: { name, address: email },
       subject: `Thank you for reaching out, ${name}! | ITSA PCCOE`,
       html: htmlContent,
     });
